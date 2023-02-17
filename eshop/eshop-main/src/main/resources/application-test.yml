@@ -1,0 +1,10 @@
+#服务器端口
+server:
+  port: 8210
+
+#数据源配置
+spring:
+  datasource:
+    url: ${rabbit.datasource.test.url}
+    username: ${rabbit.datasource.test.username}
+    password: ${rabbit.datasource.test.password}

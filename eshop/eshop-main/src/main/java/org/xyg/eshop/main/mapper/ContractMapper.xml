@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.ContractMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="contractResultMap" type="org.xyg.eshop.main.vo.ContractVO">
+        <result column="ID" property="id"/>
+        <result column="CONTRACT_CODE" property="contractCode"/>
+        <result column="CUSTOMER_NAME" property="customerName"/>
+        <result column="UNIFIED_CREDIT_CODE" property="unifiedCreditCode"/>
+        <result column="CUSTOMER_GRADE" property="customerGrade"/>
+        <result column="CUSTOMER_ADDRESS" property="customerAddress"/>
+        <result column="CONTRACT_SCENE" property="contractScene"/>
+        <result column="SUPPLIER" property="supplier"/>
+        <result column="USE_CONTRACT_TEMPLATE" property="useContractTemplate"/>
+        <result column="CONTRACT_TEMPLATE" property="contractTemplate"/>
+        <result column="SALESMAN" property="salesman"/>
+        <result column="SALESMAN_CODE" property="salesmanCode"/>
+        <result column="CONTRACT_TYPE" property="contractType"/>
+        <result column="CONTRACT_STATUS" property="contractStatus"/>
+        <result column="CONTRACT_START_DATE" property="contractStartDate"/>
+        <result column="CONTRACT_EXPIRE_DATE" property="contractExpireDate"/>
+        <result column="CONTRACT_PARTY" property="contractParty"/>
+        <result column="CONTRACT_TEXT" property="contractText"/>
+        <result column="CREATION_DATE" property="creationDate"/>
+
+        <collection property="personnelList" ofType="org.xyg.eshop.main.vo.ContractRelatePersonnelVO">
+            <result column="PID" property="id"/>
+            <result column="CONTRACT_ID" property="contractId"/>
+            <result column="PERSONNEL_NAME" property="personnelName"/>
+            <result column="PERSONNEL_CONTACT" property="personnelContact"/>
+            <result column="PERSONNEL_EMAIL" property="personnelEmail"/>
+            <result column="PERSONNEL_TYPE" property="personnelType"/>
+            <result column="PERSONNEL_JOB" property="personnelJob"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectById" resultMap="contractResultMap">
+        select c.ID, c.CONTRACT_CODE, c.CUSTOMER_NAME, c.UNIFIED_CREDIT_CODE, c.CUSTOMER_GRADE, c.CUSTOMER_ADDRESS, c.CONTRACT_SCENE,
+        c.SUPPLIER, c.USE_CONTRACT_TEMPLATE, c.CONTRACT_TEMPLATE, c.SALESMAN, c.SALESMAN_CODE, c.CONTRACT_TYPE, c.CONTRACT_START_DATE,
+        c.CONTRACT_EXPIRE_DATE, c.CONTRACT_PARTY, c.CONTRACT_TEXT, c.CONTRACT_STATUS, c.CREATION_DATE,
+        p.ID as PID,
+        p.CONTRACT_ID, p.PERSONNEL_NAME, p.PERSONNEL_CONTACT, p.PERSONNEL_EMAIL, p.PERSONNEL_TYPE, p.PERSONNEL_JOB
+        from ESHOP_CONTRACT_CONTRACT c
+        left join ESHOP_CONTRACT_RELATED_PERSONNEL p on c.ID = p.CONTRACT_ID
+
+        where c.IS_DELETED = 0 and c.ID = #{id}
+    </select>
+
+    <select id="selectContractPage" resultMap="contractResultMap">
+
+        select c.ID, c.CONTRACT_CODE, c.CUSTOMER_NAME, c.UNIFIED_CREDIT_CODE, c.CUSTOMER_GRADE, c.CUSTOMER_ADDRESS, c.CONTRACT_SCENE,
+        c.SUPPLIER, c.USE_CONTRACT_TEMPLATE, c.CONTRACT_TEMPLATE, c.SALESMAN, c.SALESMAN_CODE, c.CONTRACT_TYPE, c.CONTRACT_START_DATE,
+        c.CONTRACT_EXPIRE_DATE, c.CONTRACT_PARTY, c.CONTRACT_TEXT, c.CONTRACT_STATUS, c.CREATION_DATE
+        from ESHOP_CONTRACT_CONTRACT c
+        where c.IS_DELETED = 0
+
+        <if test="contract.contractCode != null and contract.contractCode != ''">
+            AND c.CONTRACT_CODE like CONCAT(CONCAT('%' , #{contract.contractCode}) , '%')
+        </if>
+        <if test="contract.contractType != null and contract.contractType != ''">
+            AND c.CONTRACT_TYPE = #{contract.contractType}
+        </if>
+        <if test="contract.contractStatusList != null and contract.contractStatusList.size() > 0">
+            AND c.CONTRACT_STATUS in
+            <foreach collection="contract.contractStatusList" item="contractStatus" open="(" close=")" separator=",">
+                #{contractStatus}
+            </foreach>
+        </if>
+        <if test="contract.contractExpireDateQueryList != null and contract.contractExpireDateQueryList.size > 0">
+<!--            　　<trim prefix="and" prefixOverrides="AND|OR">-->
+<!--                    <if test="contract.queryWithinWeek != null and contract.queryWithinWeek != ''">-->
+<!--                        OR TO_DATE(TO_CHAR(SYSDATE + 7, 'yyyy-MM-dd hh24:mi:ss'), 'yyyy-MM-dd hh24:mi:ss') >= c.CONTRACT_EXPIRE_DATE-->
+<!--                    </if>-->
+
+<!--            　　　　<if test="contract.queryWithinHalfMonth != null and contract.queryWithinHalfMonth.length()>0">-->
+<!--                      OR TO_DATE(TO_CHAR(SYSDATE + 15, 'yyyy-MM-dd hh24:mi:ss'), 'yyyy-MM-dd hh24:mi:ss') >= c.CONTRACT_EXPIRE_DATE-->
+<!--                  </if>-->
+<!--            　　　　<if test="contract.queryWithinMonth != null and contract.queryWithinMonth.length()>0">-->
+<!--                      OR TO_DATE(TO_CHAR(SYSDATE + 30, 'yyyy-MM-dd hh24:mi:ss'), 'yyyy-MM-dd hh24:mi:ss') >= c.CONTRACT_EXPIRE_DATE-->
+<!--                  </if>-->
+<!--            　　　　<if test="contract.queryWithinTwoMonth != null and contract.queryWithinTwoMonth.length()>0">-->
+<!--                      OR TO_DATE(TO_CHAR(SYSDATE + 60, 'yyyy-MM-dd hh24:mi:ss'), 'yyyy-MM-dd hh24:mi:ss') >= c.CONTRACT_EXPIRE_DATE-->
+<!--                  </if>-->
+<!--            　　</trim>-->
+            <choose>
+                <when test="contract.queryWithinTwoMonth != null and contract.queryWithinTwoMonth.length()>0">
+                    and TO_DATE(TO_CHAR(SYSDATE + 60, 'yyyy-MM-dd hh24:mi:ss'), 'yyyy-MM-dd hh24:mi:ss') >= c.CONTRACT_EXPIRE_DATE
+                </when>
+                <when test="contract.queryWithinMonth != null and contract.queryWithinMonth.length()>0">
+                    and TO_DATE(TO_CHAR(SYSDATE + 30, 'yyyy-MM-dd hh24:mi:ss'), 'yyyy-MM-dd hh24:mi:ss') >= c.CONTRACT_EXPIRE_DATE
+                </when>
+                <when test="contract.queryWithinHalfMonth != null and contract.queryWithinHalfMonth.length()>0">
+                    and TO_DATE(TO_CHAR(SYSDATE + 15, 'yyyy-MM-dd hh24:mi:ss'), 'yyyy-MM-dd hh24:mi:ss') >= c.CONTRACT_EXPIRE_DATE
+                </when>
+                <when test="contract.queryWithinWeek != null and contract.queryWithinWeek != ''">
+                    and TO_DATE(TO_CHAR(SYSDATE + 7, 'yyyy-MM-dd hh24:mi:ss'), 'yyyy-MM-dd hh24:mi:ss') >= c.CONTRACT_EXPIRE_DATE
+                </when>
+                <otherwise>
+                    and 1 = 1
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.PurchaseOrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="purchaseOrderMap" type="org.xyg.eshop.main.vo.PurchaseOrderVO">
+
+    </resultMap>
+
+<!--    <select id="selectById" resultMap="contractResultMap">-->
+<!--        select c.ID, c.CONTRACT_CODE, c.CUSTOMER_NAME, c.UNIFIED_CREDIT_CODE, c.CUSTOMER_GRADE, c.CUSTOMER_ADDRESS, c.CONTRACT_SCENE,-->
+<!--        c.SUPPLIER, c.USE_CONTRACT_TEMPLATE, c.CONTRACT_TEMPLATE, c.SALESMAN, c.SALESMAN_CODE, c.CONTRACT_TYPE, c.CONTRACT_START_DATE,-->
+<!--        c.CONTRACT_EXPIRE_DATE, c.CONTRACT_PARTY, c.CONTRACT_TEXT, c.CONTRACT_STATUS, c.CREATION_DATE,-->
+<!--        p.ID as PID,-->
+<!--        p.CONTRACT_ID, p.PERSONNEL_NAME, p.PERSONNEL_CONTACT, p.PERSONNEL_EMAIL, p.PERSONNEL_TYPE, p.PERSONNEL_JOB-->
+<!--        from ESHOP_CONTRACT_CONTRACT c-->
+<!--        left join ESHOP_CONTRACT_RELATED_PERSONNEL p on c.ID = p.CONTRACT_ID-->
+
+<!--        where c.IS_DELETED = 0 and c.ID = #{id}-->
+<!--    </select>-->
+
+    <select id="selectPurchaseOrderPage" resultMap="purchaseOrderMap">
+        select p.* from
+        ESHOP_PURCHASE_ORDER p
+        where p.IS_DELETED = 0
+
+        <if test="purchaseOrder.purchaseOrderNumber != null and purchaseOrder.purchaseOrderNumber != ''">
+            AND p.PURCHASE_ORDER_NUMBER like CONCAT(CONCAT('%' , #{purchaseOrder.purchaseOrderNumber}) , '%')
+        </if>
+
+        <if test="purchaseOrder.purchaseSupplier != null and purchaseOrder.purchaseSupplier != ''">
+            AND p.PURCHASE_SUPPLIER like CONCAT(CONCAT('%' , #{purchaseOrder.purchaseSupplier}) , '%')
+        </if>
+
+        <if test="purchaseOrder.storeName != null and purchaseOrder.storeName != ''">
+            AND p.STORE_NAME like CONCAT(CONCAT('%' , #{purchaseOrder.storeName}) , '%')
+        </if>
+
+        <if test="purchaseOrder.purchaseOrderDateStart != null">
+            AND p.PURCHASE_ORDER_DATE >= #{purchaseOrder.purchaseOrderDateStart}
+        </if>
+
+        <if test="purchaseOrder.purchaseOrderDateEnd != null">
+            AND p.PURCHASE_ORDER_DATE <![CDATA[ <= ]]> #{purchaseOrder.purchaseOrderDateEnd}
+        </if>
+        <if test="purchaseOrder.purchaseOrderStatusList != null and purchaseOrder.purchaseOrderStatusList.size() > 0">
+            AND p.PURCHASE_STATUS in
+            <foreach collection="purchaseOrder.purchaseOrderStatusList" item="purchaseOrderStatus" open="(" close=")" separator=",">
+                #{purchaseOrderStatus}
+            </foreach>
+        </if>
+    </select>
+</mapper>

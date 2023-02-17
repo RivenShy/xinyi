@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.PurchaseOrderCommodityMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="purchaseOrderCommodityMap" type="org.xyg.eshop.main.vo.PurchaseOrderCommodityVO">
+
+    </resultMap>
+
+    <select id="selectListByPurchaseOrderId" resultMap="purchaseOrderCommodityMap">
+        select poc.*
+        from ESHOP_PURCHASE_ORDER_COMMODITY poc
+        where poc.PURCHASE_ORDER_ID = #{id}
+    </select>
+
+
+</mapper>
