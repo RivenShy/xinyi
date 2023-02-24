@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.ProductCarModelMapper">
+
+    <resultMap id="productCarModel" type="org.xyg.eshop.main.vo.ProductCarModelVO">
+        <result column="ID" property="id"/>
+        <result column="HEADER_ID" property="headerId"/>
+        <result column="FACTORY_MODE" property="factoryMode"/>
+        <result column="PRODUCT_NAME" property="productName"/>
+        <result column="LOADING_POSITION" property="loadingPosition"/>
+        <result column="PRODUCT_TYPE" property="productType"/>
+        <result column="MACHINING_TYPE" property="machiningType"/>
+        <result column="PRINTED_LOGO" property="printedLogo"/>
+        <result column="SPECIFICATIONS" property="specifications"/>
+        <result column="ACREAGE" property="acreage"/>
+        <result column="WORKMANSHIP" property="workmanship"/>
+        <result column="ATTACHMENT" property="attachment"/>
+        <result column="US_MODELS" property="usModels"/>
+        <result column="SOUTHC_AFRICA" property="southcAfrica"/>
+        <result column="AUSTRALIA" property="australia"/>
+        <result column="OEM_MODEL" property="oemModel"/>
+        <result column="XYG_TYPE" property="xygType"/>
+        <result column="DESCRIPTION" property="description"/>
+        <result column="DESCRIPTION_EN" property="descriptionEn"/>
+        <result column="ORGANIZATION_ID" property="organizationId"/>
+        <result column="TECHNOLOGY_ID" property="technologyId"/>
+        <result column="MATERIAL_CODE" property="materialCode"/>
+        <result column="DIAGONAL" property="diagonal"/>
+        <result column="QUANTITY" property="quantity"/>
+        <result column="COLOUR" property="colour"/>
+        <result column="REMARK" property="remark"/>
+        <result column="EUROPEAN_MODELS" property="europeanModels"/>
+        <result column="WIDTH" property="width"/>
+        <result column="LENGTH" property="length"/>
+        <result column="PACKING_QUANTITY1" property="packingQuantity1"/>
+        <result column="PACKING_QUANTITY2" property="packingQuantity2"/>
+        <result column="UNITS" property="units"/>
+        <result column="FEATURES" property="features"/>
+        <result column="PARTY_COLOR" property="partyColor"/>
+        <result column="CAR_FACTORY" property="carFactory"/>
+        <result column="TYPE" property="type"/>
+        <result column="HEADER_ID" property="headerId"/>
+        <result column="MODEL" property="model"/>
+        <result column="MODEL_YEAR" property="modelYear"/>
+        <result column="DESCRIBE" property="describe"/>
+    </resultMap>
+    <select id="getDetail" resultType="org.xyg.eshop.main.vo.ProductCarModelVO">
+        select *
+        from ESHOP_PRODUCT_CAR_MODEL model
+        where model.ID = #{id}
+
+    </select>
+
+    <select id="getProductPage" resultMap="productCarModel">
+        select * from (
+        select
+        ROW_NUMBER() OVER( PARTITION BY modelLine.FACTORY_MODE order by modelLine.CREATION_DATE,modelLine.ID desc) AS NUM,
+        model.CAR_FACTORY,
+        model.TYPE,
+        model.MODEL,
+        model.MODEL_YEAR,
+        model.DESCRIBE,
+        model.ID as HEADER_ID,
+        modelLine.ID,
+        modelLine.FACTORY_MODE,
+        modelLine.PRODUCT_NAME,
+        modelLine.LOADING_POSITION,
+        modelLine.PRODUCT_TYPE,
+        modelLine.MACHINING_TYPE,
+        modelLine.PRINTED_LOGO,
+        modelLine.SPECIFICATIONS,
+        modelLine.ACREAGE,
+        modelLine.WORKMANSHIP,
+        modelLine.ATTACHMENT,
+        modelLine.US_MODELS,
+        modelLine.EUROPEAN_MODELS,
+        modelLine.SOUTHC_AFRICA,
+        modelLine.AUSTRALIA,
+        modelLine.OEM_MODEL,
+        modelLine.XYG_TYPE,
+        modelLine.DESCRIPTION,
+        modelLine.DESCRIPTION_EN,
+        modelLine.ORGANIZATION_ID,
+        modelLine.TECHNOLOGY_ID,
+        modelLine.MATERIAL_CODE,
+        modelLine.DIAGONAL,
+        modelLine.QUANTITY,
+        modelLine.COLOUR ,
+        modelLine.REMARK,
+        modelLine.PACKING_QUANTITY1,
+        modelLine.PACKING_QUANTITY2,
+        modelLine.WIDTH,
+        modelLine.LENGTH,
+        modelLine.TEMPLATE_ID,
+        modelLine.ITEM_TYPE,
+        modelLine.RETAIL_PRICE,
+        modelLine.INVENTORY_QUANTITY,
+        modelLine.SUPPLIER,
+        modelLine.PRODUCT_IMAGE,
+        priceListLine.PRICE1 AS PRICE ,
+        priceListLine.BASE_PRICE AS BASE_PRICE
+        from ESHOP_PRODUCT_MODEL_LINES modelLine
+        LEFT JOIN ESHOP_PRODUCT_CAR_MODEL model
+        ON model.ID = modelLine.HEADER_ID
+        LEFT JOIN RABBIT_SYSTEM_DICT dict
+        ON dict.CODE = 'eshop_price_list' AND dict.DICT_KEY = '1'
+        LEFT JOIN ESHOP_PRODUCT_PRICE_LIST priceList
+        ON priceList.PRICE_LIST_NAME = dict.DICT_VALUE
+        LEFT JOIN ESHOP_PRODUCT_PRICE_LIST_LINES priceListLine
+--         (select * from (select a.*,row_number() over(partition by a.MATERIAL_CODE ORDER BY a.id) as rn from ESHOP_PRODUCT_PRICE_LIST_LINES a) where rn=1) priceListLine
+        ON priceListLine.HEAD_ID = priceList.ID AND priceListLine.MATERIAL_CODE = modelLine.MATERIAL_CODE
+        <where>
+            (modelLine.check_flag = 'Y' or modelLine.check_flag is null)
+            <if test="param.factoryMode != null and param.factoryMode != ''">
+                and modelLine.FACTORY_MODE LIKE CONCAT(CONCAT('%' , #{param.factoryMode}) , '%')
+            </if>
+            <if test="param.productName != null and param.productName != ''">
+                and modelLine.PRODUCT_NAME LIKE CONCAT(CONCAT('%' , #{param.productName}) , '%')
+            </if>
+            <if test="param.carFactory != null and param.carFactory != ''">
+                and model.CAR_FACTORY LIKE CONCAT(CONCAT('%' , #{param.carFactory}) , '%')
+            </if>
+            <if test="param.specifications != null and param.specifications != ''">
+                and modelLine.SPECIFICATIONS LIKE CONCAT(CONCAT('%' , #{param.specifications}) , '%')
+            </if>
+            <if test="param.model != null and param.model != ''">
+                and model.MODEL LIKE CONCAT(CONCAT('%' , #{param.model}) , '%')
+            </if>
+            <if test="param.id != null">
+                and modelLine.Id = #{param.id}
+            </if>
+            <if test="param.specificationsStartLength != null">
+                and modelLine.LENGTH &gt;= #{param.specificationsStartLength}
+            </if>
+            <if test="param.specificationsEndLength != null">
+                and modelLine.LENGTH &lt;= #{param.specificationsEndLength}
+            </if>
+            <if test="param.specificationsStartWidth != null">
+                and modelLine.WIDTH &gt;= #{param.specificationsStartWidth}
+            </if>
+            <if test="param.specificationsEndWidth != null">
+                and modelLine.WIDTH &lt;= #{param.specificationsEndWidth}
+            </if>
+            <if test="param.easySearch != null and param.easySearch != ''">
+                and (modelLine.FACTORY_MODE LIKE CONCAT(CONCAT('%',#{param.easySearch}),'%')
+                OR modelLine.PRODUCT_NAME LIKE CONCAT(CONCAT('%',#{param.easySearch}),'%')
+                )
+            </if>
+            <if test="param.diagonalStartLength != null">
+                AND modelLine.ID in (select t.ID from (select REGEXP_SUBSTR(line.DIAGONAL , '[^*]+',1,1,'i') AS LENGTH,line.ID from ESHOP_PRODUCT_MODEL_LINES line)t where t.LENGTH &gt;= #{param.diagonalStartLength})
+            </if>
+            <if test="param.diagonalEndLength != null">
+                AND modelLine.ID in (select t.ID from (select REGEXP_SUBSTR(line.DIAGONAL , '[^*]+',1,1,'i') AS LENGTH,line.ID from ESHOP_PRODUCT_MODEL_LINES line)t where t.LENGTH &lt;= #{param.diagonalEndLength})
+            </if>
+            <if test="param.diagonalStartWidth != null">
+                AND modelLine.ID in (select t.ID from (select REGEXP_SUBSTR(line.DIAGONAL , '[^*]+',1,2,'i') AS WIDTH,line.ID from ESHOP_PRODUCT_MODEL_LINES line)t where t.WIDTH &gt;= #{param.diagonalStartWidth})
+            </if>
+            <if test="param.diagonalEndWidth != null">
+                AND modelLine.ID in (select t.ID from (select REGEXP_SUBSTR(line.DIAGONAL , '[^*]+',1,2,'i') AS WIDTH,line.ID from ESHOP_PRODUCT_MODEL_LINES line)t where t.WIDTH &lt;=  #{param.diagonalEndWidth})
+            </if>
+           <!--<if test="organizationIds != null and organizationIds != ''">
+                AND modelLine.ORGANIZATION_ID in(${organizationIds})
+            </if>-->
+            <!--<if test="organizationIds == null">
+                AND modelLine.ORGANIZATION_ID = 104
+            </if>-->
+--             AND priceListLine.PRICE1 is not null
+        </where>
+        order by modelLine.CREATION_DATE,modelLine.ID desc) t where t.NUM = 1
+    </select>
+
+    <select id="getProductPageEn" resultMap="productCarModel">
+        select * from(
+        select
+        ROW_NUMBER() OVER( PARTITION BY modelLine.XYG_TYPE order by modelLine.CREATION_DATE,modelLine.ID desc) AS NUM ,
+        model.CAR_FACTORY,
+        model.TYPE,
+        model.MODEL,
+        model.MODEL_YEAR,
+        model.DESCRIBE,
+        modelLine.ID,
+        modelLine.FACTORY_MODE,
+        modelLine.PRODUCT_NAME,
+        modelLine.LOADING_POSITION,
+        modelLine.PRODUCT_TYPE,
+        modelLine.MACHINING_TYPE,
+        modelLine.PRINTED_LOGO,
+        modelLine.SPECIFICATIONS,
+        modelLine.ACREAGE,
+        modelLine.WORKMANSHIP,
+        modelLine.ATTACHMENT,
+        modelLine.US_MODELS,
+        modelLine.EUROPEAN_MODELS,
+        modelLine.SOUTHC_AFRICA,
+        modelLine.AUSTRALIA,
+        modelLine.OEM_MODEL,
+        modelLine.XYG_TYPE,
+        modelLine.DESCRIPTION,
+        modelLine.DESCRIPTION_EN,
+        modelLine.ORGANIZATION_ID,
+        modelLine.TECHNOLOGY_ID,
+        modelLine.MATERIAL_CODE,
+        modelLine.CREATION_DATE,
+        modelLine.DIAGONAL,
+        modelLine.QUANTITY,
+        modelLine.COLOUR ,
+        modelLine.REMARK,
+        modelLine.PACKING_QUANTITY1,
+        modelLine.PACKING_QUANTITY2,
+        modelLine.WIDTH,
+        modelLine.LENGTH
+        from ESHOP_PRODUCT_MODEL_LINES modelLine
+        LEFT JOIN ESHOP_PRODUCT_CAR_MODEL model
+        ON model.ID = modelLine.HEADER_ID
+        <where>
+            (modelLine.check_flag = 'Y' or modelLine.check_flag is null)
+            <if test="factoryMode != null and factoryMode != ''">
+                and modelLine.FACTORY_MODE LIKE CONCAT(CONCAT('%' , #{factoryMode}) , '%')
+            </if>
+            <if test="productName != null and productName != ''">
+                and modelLine.PRODUCT_NAME LIKE CONCAT(CONCAT('%' , #{productName}) , '%')
+            </if>
+            <if test="carFactory != null and carFactory != ''">
+                and model.CAR_FACTORY LIKE CONCAT(CONCAT('%' , #{carFactory}) , '%')
+            </if>
+            <if test="xygType != null and xygType != ''">
+                and modelLine.XYG_TYPE LIKE CONCAT(CONCAT('%' , #{xygType}) , '%')
+            </if>
+            <if test="europeanModels != null and europeanModels != ''">
+                and modelLine.EUROPEAN_MODELS LIKE CONCAT(CONCAT('%' ,#{europeanModels}) , '%')
+            </if>
+            <if test="usModels != null and usModels != ''">
+                and modelLine.US_MODELS LIKE CONCAT(CONCAT('%' , #{usModels}) , '%')
+            </if>
+            <if test="specifications != null and specifications != ''">
+                and modelLine.SPECIFICATIONS LIKE CONCAT(CONCAT('%' , #{specifications}) , '%')
+            </if>
+            <if test="model != null and model != ''">
+                and model.MODEL LIKE CONCAT(CONCAT('%' , #{model}) , '%')
+            </if>
+            <if test="productLineId != null">
+                and modelLine.Id = #{productLineId}
+            </if>
+            <if test="width != null and length != null">
+                and (( modelLine.WIDTH &gt;= #{length} and modelLine.WIDTH &lt; #{width})
+                or
+                (modelLine.LENGTH &gt;= #{length} and modelLine.LENGTH &lt; #{width}))
+            </if>
+            <if test="easySearchEn != null and easySearchEn != ''">
+                and (modelLine.XYG_TYPE LIKE CONCAT(CONCAT('%',#{easySearchEn}),'%')
+                OR modelLine.DESCRIPTION_EN LIKE CONCAT(CONCAT('%',#{easySearchEn}),'%')
+                OR modelLine.US_MODELS LIKE CONCAT(CONCAT('%',#{easySearchEn}),'%')
+                OR modelLine.EUROPEAN_MODELS LIKE CONCAT(CONCAT('%',#{easySearchEn}),'%')
+                )
+            </if>
+            <if test="easySearch != null and easySearch != ''">
+                and (modelLine.FACTORY_MODE LIKE CONCAT(CONCAT('%',#{easySearch}),'%')
+                OR modelLine.PRODUCT_NAME LIKE CONCAT(CONCAT('%',#{easySearch}),'%')
+                )
+            </if>
+            <if test="organizationIds != null and organizationIds != ''">
+                AND modelLine.ORGANIZATION_ID in(${organizationIds})
+            </if>
+            <if test="organizationIds == null">
+                AND modelLine.ORGANIZATION_ID = 189
+            </if>
+        </where>
+        ) t
+        where t.NUM = 1
+        order by t.CREATION_DATE,t.ID desc
+    </select>
+
+
+    <select id="getProductList" resultMap="productCarModel">
+        select
+        model.CAR_FACTORY,
+        model.TYPE,
+        model.MODEL,
+        model.MODEL_YEAR,
+        model.DESCRIBE,
+        modelLine.ID,
+        modelLine.FACTORY_MODE,
+        modelLine.PRODUCT_NAME,
+        modelLine.LOADING_POSITION,
+        modelLine.PRODUCT_TYPE,
+        modelLine.MACHINING_TYPE,
+        modelLine.PRINTED_LOGO,
+        modelLine.SPECIFICATIONS,
+        modelLine.ACREAGE,
+        modelLine.WORKMANSHIP,
+        modelLine.ATTACHMENT,
+        modelLine.US_MODELS,
+        modelLine.EUROPEAN_MODELS,
+        modelLine.SOUTHC_AFRICA,
+        modelLine.AUSTRALIA,
+        modelLine.OEM_MODEL,
+        modelLine.XYG_TYPE,
+        modelLine.DESCRIPTION,
+        modelLine.DESCRIPTION_EN,
+        modelLine.ORGANIZATION_ID,
+        modelLine.TECHNOLOGY_ID,
+        modelLine.MATERIAL_CODE,
+        modelLine.DIAGONAL,
+        modelLine.QUANTITY,
+        modelLine.COLOUR ,
+        modelLine.REMARK,
+        modelLine.PACKING_QUANTITY1,
+        modelLine.PACKING_QUANTITY2,
+        modelLine.WIDTH,
+        modelLine.LENGTH
+        from ESHOP_PRODUCT_MODEL_LINES modelLine
+        LEFT JOIN ESHOP_PRODUCT_CAR_MODEL model
+        ON model.ID = modelLine.HEADER_ID
+        <where>
+            (modelLine.check_flag = 'Y' or modelLine.check_flag is null)
+            <if test="productLineId != null">
+                and modelLine.Id = #{productLineId}
+            </if>
+            <if test="xygType != null and xygType != ''">
+                and modelLine.XYG_TYPE = #{xygType}
+            </if>
+            <if test="attachment != null and attachment != ''">
+                and TO_CHAR(modelLine.ATTACHMENT) = #{attachment}
+            </if>
+            <if test="colour != null and colour != ''">
+                and modelLine.COLOUR = #{colour}
+            </if>
+        </where>
+        order by modelLine.CREATION_DATE,modelLine.ID desc
+    </select>
+
+    <select id="findProductCarModel" resultType="org.xyg.eshop.main.entity.ProductCarModel">
+        select * from(
+             select
+                 ROW_NUMBER() OVER( PARTITION BY model.CAR_FACTORY order by model.CREATION_DATE desc) AS NUM ,
+                 model.ID ,
+                 model.CAR_FACTORY ,
+                 model.TYPE ,
+                 model.MODEL ,
+                 model.MODEL_YEAR ,
+                 model.ATTACHMENT ,
+                 model.DESCRIBE ,
+                 model.CREATION_DATE
+             from ESHOP_PRODUCT_CAR_MODEL model
+        ) t where t.NUM = 1
+    </select>
+
+    <select id="getToPriceListPage" resultType="org.xyg.eshop.main.vo.ProductModelLinesToPrictListVO">
+        select
+        line.ID, line.HEADER_ID, line.FACTORY_MODE, line.PRODUCT_NAME, line.LOADING_POSITION, line.PRODUCT_TYPE,line.MACHINING_TYPE,line.PRINTED_LOGO,
+        line.SPECIFICATIONS,line.ACREAGE,line.WORKMANSHIP,line.ATTACHMENT,line.TYPE,line.US_MODELS,line.EUROPEAN_MODELS,line.SOUTHC_AFRICA,line.AUSTRALIA,
+        line.OEM_MODEL,line.XYG_TYPE,line.DESCRIPTION,line.DESCRIPTION_EN,line.ORGANIZATION_ID,line.TECHNOLOGY_ID,line.MATERIAL_CODE,line.DIAGONAL,line.QUANTITY,
+        line.COLOUR,line.REMARK,line.WIDTH,line.LENGTH,line.PACKING_QUANTITY1,line.PACKING_QUANTITY2,line.UNITS,line.MATERIAL_ID,line.LOADING_POSITION_CODE,
+        line.ATTACHMENT_EXPLANATION,line.ORIGINAL_PRODUCT_MODEL,line.FEATURES,
+        car.CAR_FACTORY,car.MODEL,car.ATTACHMENT as productCarModelAttachment,car.MODEL_YEAR
+        from ESHOP_PRODUCT_MODEL_LINES line
+        left join ESHOP_PRODUCT_CAR_MODEL car ON line.HEADER_ID = car.ID
+        <where>
+            (line.check_flag = 'Y' or line.check_flag is null)
+            <if test="lines.factoryMode != '' and lines.factoryMode != null">
+                AND line.FACTORY_MODE like concat(concat('%',#{lines.factoryMode}),'%')
+            </if>
+            <if test="lines.productName != '' and lines.productName != null">
+                AND line.PRODUCT_NAME like concat(concat('%',#{lines.productName}),'%')
+            </if>
+        </where>
+        order by line.LAST_UPDATE_DATE desc ,line.ID desc
+    </select>
+
+</mapper>

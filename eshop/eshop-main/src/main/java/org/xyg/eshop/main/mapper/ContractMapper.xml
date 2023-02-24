@@ -6,10 +6,11 @@
     <resultMap id="contractResultMap" type="org.xyg.eshop.main.vo.ContractVO">
         <result column="ID" property="id"/>
         <result column="CONTRACT_CODE" property="contractCode"/>
-        <result column="CUSTOMER_NAME" property="customerName"/>
-        <result column="UNIFIED_CREDIT_CODE" property="unifiedCreditCode"/>
-        <result column="CUSTOMER_GRADE" property="customerGrade"/>
-        <result column="CUSTOMER_ADDRESS" property="customerAddress"/>
+        <result column="STORE_NAME" property="storeName"/>
+        <result column="STORE_FRONT_ID" property="storefrontId"/>
+        <result column="UNIFIED_SOCIAL_CREDIT_CODE" property="unifiedSocialCreditCode"/>
+        <result column="STORE_GRADE" property="storeGrade"/>
+        <result column="STORE_ADDRESS" property="storeAddress"/>
         <result column="CONTRACT_SCENE" property="contractScene"/>
         <result column="SUPPLIER" property="supplier"/>
         <result column="USE_CONTRACT_TEMPLATE" property="useContractTemplate"/>
@@ -36,9 +37,9 @@
     </resultMap>
 
     <select id="selectById" resultMap="contractResultMap">
-        select c.ID, c.CONTRACT_CODE, c.CUSTOMER_NAME, c.UNIFIED_CREDIT_CODE, c.CUSTOMER_GRADE, c.CUSTOMER_ADDRESS, c.CONTRACT_SCENE,
+        select c.ID, c.CONTRACT_CODE, c.STORE_FRONT_ID, c.UNIFIED_SOCIAL_CREDIT_CODE, c.STORE_GRADE, c.STORE_ADDRESS, c.CONTRACT_SCENE,
         c.SUPPLIER, c.USE_CONTRACT_TEMPLATE, c.CONTRACT_TEMPLATE, c.SALESMAN, c.SALESMAN_CODE, c.CONTRACT_TYPE, c.CONTRACT_START_DATE,
-        c.CONTRACT_EXPIRE_DATE, c.CONTRACT_PARTY, c.CONTRACT_TEXT, c.CONTRACT_STATUS, c.CREATION_DATE,
+        c.CONTRACT_EXPIRE_DATE, c.CONTRACT_PARTY, c.CONTRACT_TEXT, c.CONTRACT_STATUS, c.CREATION_DATE,(select STOREFRONT_NAME from ESHOP_STOREFRONT es where es.ID = c.STORE_FRONT_ID ) as STORE_NAME,
         p.ID as PID,
         p.CONTRACT_ID, p.PERSONNEL_NAME, p.PERSONNEL_CONTACT, p.PERSONNEL_EMAIL, p.PERSONNEL_TYPE, p.PERSONNEL_JOB
         from ESHOP_CONTRACT_CONTRACT c
@@ -49,12 +50,17 @@
 
     <select id="selectContractPage" resultMap="contractResultMap">
 
-        select c.ID, c.CONTRACT_CODE, c.CUSTOMER_NAME, c.UNIFIED_CREDIT_CODE, c.CUSTOMER_GRADE, c.CUSTOMER_ADDRESS, c.CONTRACT_SCENE,
+        select c.ID, c.CONTRACT_CODE, c.STORE_FRONT_ID, c.UNIFIED_SOCIAL_CREDIT_CODE, c.STORE_GRADE, c.STORE_ADDRESS, c.CONTRACT_SCENE,
         c.SUPPLIER, c.USE_CONTRACT_TEMPLATE, c.CONTRACT_TEMPLATE, c.SALESMAN, c.SALESMAN_CODE, c.CONTRACT_TYPE, c.CONTRACT_START_DATE,
-        c.CONTRACT_EXPIRE_DATE, c.CONTRACT_PARTY, c.CONTRACT_TEXT, c.CONTRACT_STATUS, c.CREATION_DATE
+        c.CONTRACT_EXPIRE_DATE, c.CONTRACT_PARTY, c.CONTRACT_TEXT, c.CONTRACT_STATUS, c.CREATION_DATE, (select STOREFRONT_NAME from ESHOP_STOREFRONT es where es.ID = c.STORE_FRONT_ID ) as STORE_NAME
         from ESHOP_CONTRACT_CONTRACT c
         where c.IS_DELETED = 0
 
+        <if test="contract.storeName != null and contract.storeName != ''">
+<!--            AND c.STORE_NAME like CONCAT(CONCAT('%' , #{contract.storeName}) , '%')-->
+            AND c.STORE_FRONT_ID in
+            (select ID from ESHOP_STOREFRONT where STOREFRONT_NAME like CONCAT(CONCAT('%' , #{contract.storeName}) , '%'))
+        </if>
         <if test="contract.contractCode != null and contract.contractCode != ''">
             AND c.CONTRACT_CODE like CONCAT(CONCAT('%' , #{contract.contractCode}) , '%')
         </if>

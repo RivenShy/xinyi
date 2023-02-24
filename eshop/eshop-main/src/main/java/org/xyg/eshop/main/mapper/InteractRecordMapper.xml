@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.InteractRecordMapper">
+
+    <select id="getPage" resultType="org.xyg.eshop.main.vo.InteractRecordVO">
+        SELECT
+        interact.ID,
+        interact.STOREFRONT_ID,
+        interact.SALESMAN,
+        interact.START_DATE,
+        interact.ADDRESS,
+        interact.TITLE,
+        interact.CONTENT,
+        interact.REMARK,
+        interact.STATUS,
+        interact.CREATED_BY,
+        interact.CREATION_DATE,
+        interact.CREATE_DEPT,
+        interact.LAST_UPDATED_BY,
+        interact.LAST_UPDATE_DATE,
+        interact.LAST_UPDATE_LOGIN,
+        storefront.STOREFRONT_NAME,
+        storefront.STOREFRONT_LEVEL,
+        storefront.type as storefrontType
+        FROM ESHOP_INTERACT_RECORD interact
+        LEFT JOIN ESHOP_STOREFRONT storefront ON storefront.id = interact.STOREFRONT_ID
+        <where>
+            <if test="vo.storefrontId != null">
+                interact.STOREFRONT_ID = #{vo.storefrontId}
+            </if>
+            <if test="vo.storefrontName != null and vo.storefrontName!= ''">
+                storefront.STOREFRONT_NAME like concat('%',concat(#{vo.storefrontName},'%'))
+            </if>
+            <if test="vo.salesman != null and vo.salesman != ''">
+                interact.SALESMAN like concat('%',concat(#{vo.salesman},'%'))
+            </if>
+            <if test="vo.startDateSearch != null and vo.startDateSearch != ''">
+                and interact.START_DATE &gt;= TO_DATE(#{vo.startDateSearch},'yyyy-mm-dd HH24:mi:ss')
+            </if>
+            <if test="vo.endDateSearch != null and vo.endDateSearch != ''">
+                and interact.START_DATE &lt;= TO_DATE(#{vo.endDateSearch},'yyyy-mm-dd HH24:mi:ss')
+            </if>
+        </where>
+        order by interact.LAST_UPDATE_DATE desc
+    </select>
+
+</mapper>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.InventoryManagementMapper">
+    <select id="getPage" resultType="org.xyg.eshop.main.vo.InventoryManagementVO">
+        select
+        inventory.ID,
+        inventory.DOCNUM,
+        inventory.DOCUMENT_TYPE,
+        inventory.STOREFRONT_ID,
+        inventory.REMARK,
+        inventory.REASON,
+        inventory.STATUS,
+        inventory.CREATION_DATE,
+        storefront.STOREFRONT_NAME
+        from ESHOP_INVENTORY_MANAGEMENT inventory
+        left join ESHOP_STOREFRONT storefront on inventory.STOREFRONT_ID = storefront.id
+        <where>
+            <if test="managementVO.docnum != null and managementVO.docnum != ''">
+                and inventory.DOCNUM like concat(concat('%',#{managementVO.docnum}),'%')
+            </if>
+            <if test="managementVO.documentType != null and managementVO.documentType != ''">
+                and inventory.DOCUMENT_TYPE = #{managementVO.documentType}
+            </if>
+            <if test="managementVO.startDate != null and managementVO.startDate != ''">
+                and inventory.CREATION_DATE &gt;= TO_DATE(#{managementVO.startDate} , 'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="managementVO.endDate != null and managementVO.endDate != ''">
+                and inventory.CREATION_DATE &lt;= TO_DATE(#{managementVO.endDate} , 'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="managementVO.storefrontName != null and managementVO.storefrontName != ''">
+                and storefront.STOREFRONT_NAME like concat(concat('%',#{managementVO.storefrontName}),'%')
+            </if>
+            <if test="managementVO.statusCondition != null and managementVO.statusCondition != ''">
+                and find_in_set(inventory.status,#{managementVO.statusCondition}) > 0
+            </if>
+        </where>
+        order by inventory.LAST_UPDATE_DATE
+    </select>
+
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.StorefrontFranchiseMapper">
+
+    <select id="findPage" resultType="org.xyg.eshop.main.vo.StorefrontFranchiseVO">
+        select franchise.id,
+               franchise.franchise_no,
+               franchise.apply_date,
+               franchise.type,
+               franchise.storefront_name,
+               franchise.storefront_code,
+               franchise.storefront_level,
+               franchise.address,
+               franchise.longitude_and_latitude,
+               franchise.distance,
+               franchise.salesrep_no,
+               franchise.org_id,
+               franchise.principal,
+               franchise.principal_id_card,
+               franchise.contact_information,
+               franchise.business_license_name,
+               franchise.credit_code,
+               franchise.supplier_name,
+               franchise.manage_number,
+               franchise.artificer_number,
+               franchise.cust_lounge,
+               franchise.service_parking_space,
+               franchise.service_vehicles,
+               franchise.area_length,
+               franchise.area_depth,
+               franchise.signboard_height,
+               franchise.signboard_length,
+               franchise.backdrop_height,
+               franchise.backdrop_length,
+               franchise.external_photo,
+               franchise.interior_photo,
+               franchise.introduction,
+               franchise.country,
+               franchise.expect_acceptance_date,
+               franchise.average_replace_quantity,
+               franchise.average_quantity,
+               franchise.business_source,
+               franchise.inventory_amount,
+               franchise.purchase_amount,
+               franchise.purchase_target_amount,
+               franchise.status,
+               franchise.created_by,
+               franchise.creation_date,
+               franchise.last_update_date
+          from eshop_storefront_franchise franchise
+               <where>
+                    <if test="query.franchiseNo != null and query.franchiseNo != ''">
+                        and franchise.franchise_no like concat(concat('%', #{query.franchiseNo}), '%')
+                    </if>
+                    <if test="query.storefrontName != null and query.storefrontName != ''">
+                        and franchise.storefront_name like concat(concat('%', #{query.storefrontName}), '%')
+                    </if>
+                    <if test="query.startApplyDate != null">
+                        and franchise.apply_date &lt;= #{query.startApplyDate}
+                    </if>
+                    <if test="query.endApplyDate != null">
+                        and franchise.apply_date &gt;= #{query.endApplyDate}
+                    </if>
+                    <if test="query.type != null and query.type != ''">
+                        and franchise.type = #{query.type}
+                    </if>
+                    <if test="query.status != null and query.status.size() > 0">
+                        and franchise.status
+                        <foreach collection="query.status" item="v" open="in(" separator="," close=")">
+                            #{v}
+                        </foreach>
+                    </if>
+               </where>
+         order by franchise.last_update_date desc
+    </select>
+
+</mapper>

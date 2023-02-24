@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.ProductInventoryMapper">
+
+    <select id="getInventoryList" resultType="org.xyg.eshop.main.vo.ProductInventoryVO">
+        select
+        inventory.ID,
+        inventory.PRODUCT_NAME,
+        inventory.PRODUCT_IMAGE,
+        inventory.PRODUCT_MODE,
+        inventory.TOTAL_INVENTORY,
+        inventory.AVAILABLE_INVENTORY,
+        inventory.OCCUPY_INVENTORY,
+        inventory.TRANSPORTATION_INVENTORY,
+        inventory.STATUS,
+        inventory.STOREFRONT_ID,
+        storefront.STOREFRONT_NAME
+        from ESHOP_PRODUCT_INVENTORY inventory
+        left join ESHOP_STOREFRONT storefront on inventory.STOREFRONT_ID = storefront.id
+        <where>
+            <if test="inventoryVO.productName != null and inventoryVO.productName != ''">
+                and inventory.PRODUCT_NAME like concat(concat('%',#{inventoryVO.productName}),'%')
+            </if>
+            <if test="inventoryVO.productMode != null and inventoryVO.productMode != ''">
+                and inventory.PRODUCT_MODE like concat(concat('%',#{inventoryVO.productMode}),'%')
+            </if>
+            <if test="inventoryVO.storefrontId != null">
+                and inventory.STOREFRONT_ID = #{inventoryVO.storefrontId}
+            </if>
+            <if test="inventoryVO.storefrontName != null and inventoryVO.storefrontName != ''">
+                and storefront.STOREFRONT_NAME like concat(concat('%',#{inventoryVO.storefrontName}),'%')
+            </if>
+            <if test="inventoryVO.statusCondition != null and inventoryVO.statusCondition != ''">
+                and find_in_set(inventory.status,#{inventoryVO.statusCondition}) > 0
+            </if>
+        </where>
+        order by inventory.LAST_UPDATE_DATE
+    </select>
+
+    <select id="getPage" resultType="org.xyg.eshop.main.vo.ProductInventoryVO">
+        select
+        inventory.ID,
+        inventory.PRODUCT_NAME,
+        inventory.PRODUCT_IMAGE,
+        inventory.PRODUCT_MODE,
+        inventory.TOTAL_INVENTORY,
+        inventory.AVAILABLE_INVENTORY,
+        inventory.OCCUPY_INVENTORY,
+        inventory.TRANSPORTATION_INVENTORY,
+        inventory.STATUS,
+        inventory.STOREFRONT_ID,
+        storefront.STOREFRONT_NAME
+        from ESHOP_PRODUCT_INVENTORY inventory
+        left join ESHOP_STOREFRONT storefront on inventory.STOREFRONT_ID = storefront.id
+        <where>
+            <if test="inventoryVO.productName != null and inventoryVO.productName != ''">
+                and inventory.PRODUCT_NAME like concat(concat('%',#{inventoryVO.productName}),'%')
+            </if>
+            <if test="inventoryVO.productMode != null and inventoryVO.productMode != ''">
+                and inventory.PRODUCT_MODE like concat(concat('%',#{inventoryVO.productMode}),'%')
+            </if>
+            <if test="inventoryVO.storefrontId != null">
+                and inventory.STOREFRONT_ID = #{inventoryVO.storefrontId}
+            </if>
+            <if test="inventoryVO.storefrontName != null and inventoryVO.storefrontName != ''">
+                and storefront.STOREFRONT_NAME like concat(concat('%',#{inventoryVO.storefrontName}),'%')
+            </if>
+            <if test="inventoryVO.statusCondition != null and inventoryVO.statusCondition != ''">
+                and  find_in_set(inventory.status,#{inventoryVO.statusCondition}) > 0
+            </if>
+        </where>
+        order by inventory.LAST_UPDATE_DATE
+    </select>
+
+</mapper>

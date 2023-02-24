@@ -7,4 +7,5 @@ import org.xyg.eshop.main.entity.ContractRelatePersonnel;
 
 @Mapper
 public interface ContractRelatePersonnelMapper extends BaseMapper<ContractRelatePersonnel> {
+    Boolean deleteByPersonnelId(Long id);
 }

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.StorefrontEmployeeMapper">
+    <select id="getPage" resultType="org.xyg.eshop.main.vo.StorefrontEmployeeVO">
+        select
+        e.id,e.empno,e.emp_name,e.dept_id, e.join_date, e.out_date,e.mobiletel,e.email,e.fd_level,e.storefront_id,e.address,e.qualifications,e.certificate,
+        e.status,e.created_by,e.creation_date,e.create_dept,e.last_updated_by,e.last_update_date,e.last_update_login,
+        d.dept_name,storefront.storefront_name
+        from eshop_storefront_employee e
+        left join rabbit_system_dept d on e.dept_id = d.id
+        left join eshop_storefront storefront on storefront.ID = e.STOREFRONT_ID
+        <where>
+            <if test="emp.empName!=null and emp.empName!=''">
+                e.emp_name like concat('%',concat(#{emp.empName},'%'))
+            </if>
+            <if test="emp.empno!=null and emp.empno!=''">
+                and e.empno like concat('%',concat(#{emp.empno},'%'))
+            </if>
+            <if test="emp.storefrontName!=null and emp.storefrontName!=''">
+                and storefront.storefront_name like concat('%',concat(#{emp.storefrontName},'%'))
+            </if>
+            <if test="emp.storefrontId!=null">
+                and storefront.storefront_id = #{emp.storefrontId}
+            </if>
+        </where>
+    </select>
+    <select id="getDetail" resultType="org.xyg.eshop.main.vo.StorefrontEmployeeVO">
+        select
+        e.id,e.empno,e.emp_name,e.dept_id, e.join_date, e.out_date,e.mobiletel,e.email,e.fd_level,e.storefront_id,e.address,e.qualifications,e.certificate,
+        e.status,e.created_by,e.creation_date,e.create_dept,e.last_updated_by,e.last_update_date,e.last_update_login,
+        d.dept_name,storefront.storefront_name
+        from eshop_storefront_employee e
+        left join rabbit_system_dept d on e.dept_id = d.id
+        left join eshop_storefront storefront on storefront.ID = e.STOREFRONT_ID
+        <where>
+            <choose>
+                <when test="ids!=null and ids!=''">
+                   and e.id in(${ids})
+                </when>
+                <otherwise>
+                   and e.empno in(${empno})
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+</mapper>

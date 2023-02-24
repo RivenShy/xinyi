@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.ProductAdjustmentRecordMapper">
+
+    <select id="getToPriceListPage" resultType="org.xyg.eshop.main.vo.ProductAdjustmentRecordVO">
+        select
+        adjustment.ID,
+        adjustment.PRICE_LIST_NAME,
+        adjustment.TYPE,
+        adjustment.EXPIRY_DATE,
+        adjustment.REGION,
+        adjustment.STOREFRONT_TYPE,
+        adjustment.EXCHANGE_RATE,
+        adjustment.CURRENCY,
+        adjustment.PRICE_LIST_ID,
+        adjustment.PROCESS_INSTANCE_ID,
+        adjustment.STATUS,
+        adjustment.CREATED_BY,
+        adjustment.CREATION_DATE,
+        adjustment.LAST_UPDATE_DATE,
+        adjustment.DOCNUM,
+        adjustment.ERP_STATUS,
+        adjustment.ERP_ERROR_LOG,
+        adjustment.PLATFORM_TYPE
+        from ESHOP_PRODUCT_ADJUSTMENT_RECORD adjustment
+        <where>
+            adjustment.PRICE_LIST_ID = #{priceListId}
+            <if test="id != null">
+                and adjustment.id = #{id}
+            </if>
+            <if test="docnum != null and docnum != ''">
+                and adjustment.docnum like concat(concat('%',#{docnum}),'%')
+            </if>
+            <if test="erpStatus != null and erpStatus != ''">
+                and adjustment.erp_status = #{erpStatus}
+            </if>
+        </where>
+        order by adjustment.CREATION_DATE desc,adjustment.id
+    </select>
+
+</mapper>

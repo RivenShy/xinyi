@@ -11,7 +11,13 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @ComponentScan(
-	basePackages = {"org.springrabbit.resource.feign", "org.springrabbit.system.feign","org.springrabbit.flow.core.feign", "org.springrabbit.system.user.feign","org.xyg"}
+	basePackages = {
+		"org.springrabbit.resource.feign",
+		"org.springrabbit.system.feign",
+		"org.springrabbit.flow.core.feign",
+		"org.springrabbit.system.user.feign",
+		"org.xyg.ehop.common"
+	}
 )
 public class EshopMainApplicationConfig {
 

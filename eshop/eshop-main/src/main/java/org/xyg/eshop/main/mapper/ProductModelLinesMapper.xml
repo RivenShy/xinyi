@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.ProductModelLinesMapper">
+
+    <select id="getDetail" resultType="org.xyg.eshop.main.vo.ProductModelLinesVO">
+        select *
+        from ESHOP_PRODUCT_MODEL_LINES line
+        where line.ID = #{id}
+    </select>
+
+    <select id="exportExcelList" resultType="org.xyg.eshop.main.excel.product.ProductModelLinesExportExcel">
+        select *
+        from ESHOP_PRODUCT_MODEL_LINES line
+    </select>
+
+    <select id="findMaxUpdate" resultType="java.time.LocalDateTime">
+        select max(last_update_date)
+        from eshop_product_model_lines
+    </select>
+
+    <select id="getModelLines" resultType="org.xyg.eshop.main.entity.ProductModelLines">
+        select
+              modelLine.id,                       modelLine.header_id,
+              modelLine.factory_mode,             modelLine.product_name,
+              modelLine.loading_position,         modelLine.product_type,
+              modelLine.machining_type,           modelLine.printed_logo,
+              modelLine.specifications,           modelLine.acreage,
+              modelLine.workmanship,              modelLine.TYPE,
+              modelLine.us_models,                modelLine.european_models,
+              modelLine.southc_africa,            modelLine.australia,
+              modelLine.oem_model,                modelLine.status,
+              modelLine.created_by,               modelLine.creation_date,
+              modelLine.create_dept,              modelLine.last_updated_by,
+              modelLine.last_update_date,         modelLine.last_update_login,
+              modelLine.attribute1,               modelLine.attribute2,
+              modelLine.attribute3,               modelLine.attribute4,
+              modelLine.attribute5,               modelLine.attribute6,
+              modelLine.xyg_type,                 modelLine.description,
+              modelLine.description_en,           modelLine.organization_id,
+              modelLine.technology_id,            modelLine.material_code,
+              modelLine.quantity,                 modelLine.colour,
+              modelLine.remark,                   modelLine.width,
+              modelLine.length,                   modelLine.packing_quantity1,
+              modelLine.packing_quantity2,        modelLine.units,
+              modelLine.material_id,              modelLine.loading_position_code,
+              modelLine.attachment_explanation,   modelLine.original_product_model,
+              modelLine.features,                 modelLine.diagonal,
+              modelLine.trait,                    modelLine.hole,
+              modelLine.wusi_wire_price,          modelLine.yj_wire_price,
+              modelLine.black_area,               modelLine.wip_flag,
+              modelLine.enabled_flag,             modelLine.mirror_mount,
+              modelLine.induction_seat,           modelLine.adhesive_strip,
+              modelLine.line_connector,           modelLine.snap,
+              modelLine.hardware,                 modelLine.brake_light_bracket,
+              modelLine.hole_rubber_sleeve,       modelLine.gross_weight,
+              modelLine.wsnum,                    modelLine.product_trait,
+              modelLine.attachment,               modelLine.party_color
+        from ESHOP_PRODUCT_MODEL_LINES modelLine
+        <where>
+            (modelLine.check_flag = 'Y' or modelLine.check_flag is null)
+            <if test="xygType != null and xygType != ''">
+                AND modelLine.XYG_TYPE = #{xygType}
+            </if>
+            <if test="partyColor != null and partyColor != ''">
+                AND modelLine.PARTY_COLOR = #{partyColor}
+            </if>
+            <if test="attachment != null and attachment != ''">
+                AND to_char(modelLine.ATTACHMENT) = #{attachment}
+            </if>
+            <if test="features != null and features != ''">
+                AND modelLine.FEATURES = #{features}
+            </if>
+            <if test="orgId != null">
+                AND modelLine.ORGANIZATION_ID = #{orgId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getModelList" resultType="org.xyg.eshop.main.entity.ProductModelLines">
+        select distinct(line.technology_id),
+               line.id,
+               line.header_id,
+               line.factory_mode,
+               line.product_name,
+               line.loading_position,
+               line.product_type,
+               line.machining_type,
+               line.printed_logo,
+               line.specifications,
+               line.acreage,
+               line.workmanship,
+               line.attachment,
+               line.type,
+               line.us_models,
+               line.european_models,
+               line.southc_africa,
+               line.australia,
+               line.oem_model,
+               line.status,
+               line.creation_date,
+               line.last_update_date,
+               line.xyg_type,
+               line.description,
+               line.description_en,
+               line.organization_id,
+               line.material_code,
+               line.quantity,
+               line.colour,
+               line.remark,
+               line.width,
+               line.length,
+               line.packing_quantity1,
+               line.packing_quantity2,
+               line.units,
+               line.material_id,
+               line.loading_position_code,
+               line.attachment_explanation,
+               line.original_product_model,
+               line.features,
+               line.diagonal,
+               line.trait,
+               line.hole,
+               line.wusi_wire_price,
+               line.yj_wire_price,
+               line.black_area,
+               line.wip_flag
+        from eshop_product_model_lines line
+        <where>
+            (line.check_flag = 'Y' or line.check_flag is null)
+            <if test="materialCodes != null and materialCodes.size() > 0">
+                and line.material_code
+                <foreach collection="materialCodes" item="materialCode" open="in(" separator="," close=")">
+                    #{materialCode}
+                </foreach>
+            </if>
+            <if test="materialIds != null and materialIds.size() > 0">
+                and line.material_id
+                <foreach collection="materialIds" item="materialId" open="in(" separator="," close=")">
+                    #{materialId}
+                </foreach>
+            </if>
+            <if test="factoryModes != null and factoryModes.size() > 0">
+                and line.factory_mode
+                <foreach collection="factoryModes" item="factoryMode" open="in(" separator="," close=")">
+                    #{factoryMode}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>

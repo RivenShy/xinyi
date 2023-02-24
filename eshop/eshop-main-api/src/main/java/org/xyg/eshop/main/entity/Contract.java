@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springrabbit.core.mp.base.BaseEntity;
 import org.springrabbit.core.mp.base.DBEntity;
 
 import java.io.Serializable;
@@ -15,7 +16,7 @@ import java.util.Date;
 @TableName(value = "ESHOP_CONTRACT_CONTRACT")
 @Data
 @ApiModel(value = "eshop合同信息", description = "eshop合同信息")
-public class Contract extends DBEntity implements Serializable {
+public class Contract extends BaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -30,26 +31,30 @@ public class Contract extends DBEntity implements Serializable {
 	@TableField(value = "CONTRACT_CODE")
 	private String contractCode;
 
-	@ApiModelProperty(value = "客户名称")
-	@TableField(value = "CUSTOMER_NAME")
-	private String customerName;
+//	@ApiModelProperty(value = "门店名称")
+//	@TableField(value = "STORE_NAME")
+//	private String storeName;
 
-	@ApiModelProperty(value = "统一信用代码")
-	@TableField(value = "UNIFIED_CREDIT_CODE")
-	private String unifiedCreditCode;
+	@ApiModelProperty(value = "门店id")
+	@TableField(value = "STORE_FRONT_ID")
+	private Long storefrontId;
+
+	@ApiModelProperty(value = "统一社会信用代码")
+	@TableField(value = "UNIFIED_SOCIAL_CREDIT_CODE")
+	private String unifiedSocialCreditCode;
 
 	@ApiModelProperty(value = "合同场景")
 	@TableField(value = "CONTRACT_SCENE")
 	private String contractScene;
 
 
-	@ApiModelProperty(value = "客户等级")
-	@TableField(value = "CUSTOMER_GRADE")
-	private String customerGrade;
+	@ApiModelProperty(value = "门店等级")
+	@TableField(value = "STORE_GRADE")
+	private String storeGrade;
 
-	@ApiModelProperty(value = "客户地址")
-	@TableField(value = "CUSTOMER_ADDRESS")
-	private String customerAddress;
+	@ApiModelProperty(value = "门店地址")
+	@TableField(value = "STORE_ADDRESS")
+	private String storeAddress;
 
 	@ApiModelProperty(value = "信义提供的供应商")
 	@TableField(value = "SUPPLIER")
@@ -73,11 +78,11 @@ public class Contract extends DBEntity implements Serializable {
 
 	@ApiModelProperty(value = "合同类型")
 	@TableField(value = "CONTRACT_TYPE")
-	private String contractType;
+	private Integer contractType;
 
 	@ApiModelProperty(value = "合同状态")
 	@TableField(value = "CONTRACT_STATUS")
-	private String contractStatus;
+	private Integer contractStatus;
 
 	@ApiModelProperty(value = "合同开始时间")
 	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
@@ -100,4 +105,15 @@ public class Contract extends DBEntity implements Serializable {
 	@ApiModelProperty(value = "合同附件")
 	@TableField(value = "CONTRACT_APPENDIX")
 	private String contractAppendix;
+
+	@ApiModelProperty(value = "流程实例ID")
+	@TableField(value = "PROCESS_INSTANCE_ID")
+	private String processInstanceId;
+
+	/**
+	 * 当前审批阶段（字典id）
+	 */
+	@ApiModelProperty(value = "当前审批阶段")
+	@TableField(value = "CURR_APPROVEPHASE")
+	private String currApprovePhase;
 }

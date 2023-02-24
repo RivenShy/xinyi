@@ -12,4 +12,6 @@ public class ContractVO extends Contract implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private List<ContractRelatePersonnelVO> personnelList;
+
+	private String storeName;
 }

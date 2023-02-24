@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.ProductPriceListMapper">
+    <resultMap id="treeNodeResultMap" type="org.springrabbit.core.tool.node.TreeNode">
+        <id column="id" property="id"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="title" property="title"/>
+        <result column="value" property="value"/>
+        <result column="key" property="key"/>
+        <result column="has_children" property="hasChildren"/>
+    </resultMap>
+
+    <select id="getTreeList" resultMap="treeNodeResultMap">
+        SELECT
+        price.id,
+        price.parent_id,
+        price.PRICE_LIST_NAME title,
+        price.id AS "value",
+        price.id AS "key",
+        (
+        SELECT
+        CASE WHEN count(1) > 0 THEN 1 ELSE 0 END
+        FROM
+         ESHOP_PRODUCT_PRICE_LIST
+        WHERE
+        parent_id = price.id
+        ) AS "has_children"
+        FROM
+        ESHOP_PRODUCT_PRICE_LIST price
+        LEFT JOIN RABBIT_SYSTEM_DICT DICT ON DICT.CODE = 'quote_type' AND price.TYPE = DICT.DICT_KEY AND DICT.IS_DELETED = 0
+        <where>
+            price.parent_id = #{parentId}
+            <if test="priceListName != '' and priceListName != null">
+                AND price.PRICE_LIST_NAME like CONCAT(CONCAT('%',#{priceListName}),'%')
+            </if>
+            <if test="type != null">
+                AND price.TYPE = #{type}
+            </if>
+            <if test="regionOrPartyName != '' and regionOrPartyName != null">
+                AND (
+                (price.REGION like CONCAT(CONCAT('%',#{regionOrPartyName}),'%')) OR
+                    price.PARTY_ID IN
+                    (SELECT ID FROM CUST_PARTIES WHERE
+                    PARTY_NAME like CONCAT(CONCAT('%',#{regionOrPartyName}),'%') AND
+                    (COMPANY_LOGO = 'yc' OR COMPANY_LOGO = 'jt' OR COMPANY_LOGO IS NULL))
+                )
+            </if>
+        </where>
+        ORDER BY price.LAST_UPDATE_DATE DESC
+    </select>
+
+    <select id="getList" resultType="org.xyg.eshop.main.entity.ProductPriceList">
+        SELECT
+        price.id,
+        price.price_list_name,
+        price.type,
+        price.expiry_date,
+        price.region,
+        price.storefront_type,
+        price.parent_id,
+        price.platform_type
+        FROM
+        ESHOP_PRODUCT_PRICE_LIST price
+        <where>
+            <if test="id != null">
+                AND price.ID = #{id}
+            </if>
+            <if test="storefrontType != null">
+                AND price.STOREFRONT_TYPE = #{storefrontType}
+            </if>
+            <if test="parentId != null">
+                AND price.parent_id = #{parentId}
+            </if>
+            <if test="priceListName != '' and priceListName != null">
+                AND price.PRICE_LIST_NAME like CONCAT(CONCAT('%',#{priceListName}),'%')
+            </if>
+            <if test="type != null">
+                AND price.TYPE = #{type}
+            </if>
+            <if test="isValid != null">
+                AND price.IS_VALID = #{isValid}
+            </if>
+            <if test="regionOrPartyName != '' and regionOrPartyName != null">
+                AND (
+                (price.REGION like CONCAT(CONCAT('%',#{regionOrPartyName}),'%')) OR
+                price.PARTY_ID IN
+                (SELECT ID FROM CUST_PARTIES WHERE
+                PARTY_NAME like CONCAT(CONCAT('%',#{regionOrPartyName}),'%') AND
+                (COMPANY_LOGO = 'yc' OR COMPANY_LOGO = 'jt' OR COMPANY_LOGO IS NULL))
+                )
+            </if>
+        </where>
+    </select>
+
+    <select id="getByTypePage" resultType="org.xyg.eshop.main.vo.ProductPriceListVO">
+        SELECT
+        price.id,
+        price.price_list_name,
+        price.type
+        FROM
+        <if test="type = 0">
+            ESHOP_PRODUCT_PRICE_LIST price
+        </if>
+        <if test="type = 1">
+            ESHOP_PRODUCT_EXPORT_PRICE_LIST price
+        </if>
+        <where>
+            <if test="priceListName != '' and priceListName != null">
+                AND price.PRICE_LIST_NAME like CONCAT(CONCAT('%',#{priceListName}),'%')
+            </if>
+        </where>
+    </select>
+</mapper>

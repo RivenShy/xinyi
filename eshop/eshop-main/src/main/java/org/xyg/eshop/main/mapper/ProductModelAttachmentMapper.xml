@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.ProductModelAttachmentMapper">
+
+    <select id="getDetail" resultType="org.xyg.eshop.main.vo.ProductModelAttachmentVO">
+        select *
+        from ESHOP_PRODUCT_MODEL_ATTACHMENT attachment
+        where attachment.ID = #{id}
+    </select>
+
+    <select id="findMaxUpdateDate" resultType="java.time.LocalDateTime">
+        select max(last_update_date) from eshop_product_model_attachment
+    </select>
+</mapper>

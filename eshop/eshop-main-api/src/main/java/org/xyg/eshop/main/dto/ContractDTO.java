@@ -26,4 +26,6 @@ public class ContractDTO extends Contract implements Serializable {
 	private String queryWithinTwoMonth;
 
 	private String contractExpireDateQuerySql;
+
+	private String storeName;
 }

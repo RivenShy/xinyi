@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.ProductPriceListLinesMapper">
+
+    <select id="exportPriceListLines" resultType="org.xyg.eshop.main.excel.ProductPriceListExportExcel">
+        SELECT
+        price.price_list_name,
+        lines.brand,
+        lines.model,
+        lines.product_name,
+        lines.product_model,
+        lines.base_price,
+        lines.suggested_price,
+        lines.settlement_price,
+        lines.platform_receipt_price,
+        lines.platform_suggested_price,
+        lines.remark
+        FROM
+        ESHOP_PRODUCT_PRICE_LIST_LINES lines
+        LEFT JOIN ESHOP_PRODUCT_PRICE_LIST price ON price.id = lines.head_id
+        <where>
+            <if test="headId != null">
+                lines.head_id = #{headId}
+            </if>
+            <if test="lines.productModel != '' and lines.productModel != null">
+                AND lines.product_model like CONCAT(CONCAT('%',#{lines.productModel}),'%')
+            </if>
+            <if test="lines.productName != '' and lines.productName != null">
+                AND lines.product_name like CONCAT(CONCAT('%',#{lines.productName}),'%')
+            </if>
+        </where>
+        ORDER BY lines.LAST_UPDATE_DATE DESC
+    </select>
+</mapper>

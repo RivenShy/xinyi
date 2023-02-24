@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.InventoryFlowMapper">
+    <select id="getPage" resultType="org.xyg.eshop.main.vo.InventoryFlowVO">
+        select
+        flow.ID,
+        flow.DOCNUM,
+        flow.DOCNUM_TYPE,
+        flow.STOREFRONT_ID,
+        flow.PRODUCT_NAME,
+        flow.PRODUCT_MODE,
+        flow.INBOUND,
+        flow.OUTBOUND,
+        flow.REMAINING_INVENTORY,
+        flow.STOREFRONT_PRICE,
+        flow.STATUS,
+        flow.CREATION_DATE,
+        storefront.STOREFRONT_NAME
+        from ESHOP_INVENTORY_FLOW flow
+        left join ESHOP_STOREFRONT storefront on flow.STOREFRONT_ID = storefront.id
+        <where>
+            <if test="flowVO.productName != null and flowVO.productName != ''">
+                and flow.PRODUCT_NAME like concat(concat('%',#{flowVO.productName}),'%')
+            </if>
+            <if test="flowVO.productMode != null and flowVO.productMode != ''">
+                and flow.PRODUCT_MODE like concat(concat('%',#{flowVO.productMode}),'%')
+            </if>
+            <if test="flowVO.startDate != null and flowVO.startDate != ''">
+                and flow.CREATION_DATE &gt;= TO_DATE(#{flowVO.startDate} , 'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="flowVO.endDate != null and flowVO.endDate != ''">
+                and flow.CREATION_DATE &lt;= TO_DATE(#{flowVO.endDate} , 'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="flowVO.storefrontName != null and flowVO.storefrontName != ''">
+                and storefront.STOREFRONT_NAME like concat(concat('%',#{flowVO.storefrontName}),'%')
+            </if>
+            <if test="flowVO.docnum != null and flowVO.docnum != ''">
+                and flow.DOCNUM like concat(concat('%',#{flowVO.docnum}),'%')
+            </if>
+        </where>
+        order by flow.LAST_UPDATE_DATE
+    </select>
+
+</mapper>

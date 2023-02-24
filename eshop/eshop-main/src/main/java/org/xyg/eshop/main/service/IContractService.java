@@ -3,6 +3,8 @@ package org.xyg.eshop.main.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.springrabbit.core.mp.base.BaseService;
 import org.springrabbit.core.tool.api.R;
+import org.springrabbit.flow.core.callback.CallBackMethodResDto;
+import org.springrabbit.flow.core.callback.CallbackMethodReqDto;
 import org.xyg.eshop.main.dto.ContractDTO;
 import org.xyg.eshop.main.entity.Contract;
 import org.xyg.eshop.main.vo.ContractVO;
@@ -18,4 +20,12 @@ public interface IContractService {
 	R<Boolean> saveOrUpdate(ContractDTO contractDTO);
 
 	R<Long> submit(ContractDTO contractDTO);
+
+	CallBackMethodResDto flowInstanceExecutionEndCallback(CallbackMethodReqDto inDto);
+
+	CallBackMethodResDto flowInstanceExecutionStartCallback(CallbackMethodReqDto inDto);
+
+	void updateContractStatusIfExpired();
+
+    R<Boolean> deletePersonnelById(Long id);
 }
