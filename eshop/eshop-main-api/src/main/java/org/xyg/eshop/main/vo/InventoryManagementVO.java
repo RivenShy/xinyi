@@ -34,6 +34,9 @@ public class InventoryManagementVO extends InventoryManagement implements Serial
 	@ApiModelProperty(value = "状态名称")
 	private String statusName;
 
+	@ApiModelProperty(value = "至门店名称")
+	private String toStorefrontName;
+
 	@ApiModelProperty(value = "库存管理行表")
 	private List<InventoryManagementLines> linesList;
 

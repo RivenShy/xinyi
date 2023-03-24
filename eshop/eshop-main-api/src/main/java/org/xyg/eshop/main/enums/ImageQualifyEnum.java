@@ -1,20 +1,18 @@
 package org.xyg.eshop.main.enums;
 
-public enum ContractExpireDateEnum {
-	A_WEEK(1, "一周"),
-	HALF_MONTH(2, "半个月"),
-	A_MONTH(3, "一个月"),
-	TWO_MONTH(4, "两个月");
+public enum ImageQualifyEnum {
+	NO(1, "否"),
+	YES(2, "是");
 
 	private String name;
 	private int index;
 
-	private ContractExpireDateEnum(int index, String name) {
+	private ImageQualifyEnum(int index, String name) {
 		this.name = name;
 		this.index = index;
 	}
 
-	ContractExpireDateEnum(String name) {
+	ImageQualifyEnum(String name) {
 		this.name = name;
 	}
 

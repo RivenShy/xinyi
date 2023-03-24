@@ -1,5 +1,6 @@
 package org.xyg.eshop.main.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -31,16 +32,20 @@ public class InventoryFlow extends DBEntity implements Serializable {
 	@ApiModelProperty(value = "产品型号")
 	private String productMode;
 
-	@ApiModelProperty(value = "入库")
-	private Long inbound;
-
-	@ApiModelProperty(value = "出库")
-	private Long outbound;
+	@ApiModelProperty(value = "出入库数量")
+	private Long inventoryQuantity;
 
 	@ApiModelProperty(value = "剩余库存")
 	private Long remainingInventory;
 
 	@ApiModelProperty(value = "门店价格")
 	private BigDecimal storefrontPrice;
+
+	@ApiModelProperty(value = "至门店id")
+	private Long toStorefrontId;
+
+	@ApiModelProperty(value = "在途库存")
+	@TableField(exist = false)
+	private Long transportationInventory;
 
 }

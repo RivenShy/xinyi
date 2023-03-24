@@ -7,6 +7,7 @@ import lombok.Data;
 import org.springrabbit.core.mp.base.DBEntity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -25,6 +26,12 @@ public class InventoryManagement extends DBEntity implements Serializable {
 	@ApiModelProperty(value = "单据类型")
 	private String documentType;
 
+	@ApiModelProperty(value = "总数量")
+	private BigDecimal totalQuantity;
+
+	@ApiModelProperty(value = "总金额")
+	private String totalPrice;
+
 	@ApiModelProperty(value = "凭证")
 	private String voucher;
 
@@ -36,5 +43,20 @@ public class InventoryManagement extends DBEntity implements Serializable {
 
 	@ApiModelProperty(value = "期望送达日期")
 	private Date expectedDeliveryDate;
+
+	@ApiModelProperty(value = "流程实例id")
+	private String processInstanceId;
+
+	@ApiModelProperty(value = "至门店id")
+	private Long toStorefrontId;
+
+	@ApiModelProperty(value = "订单日期")
+	private Date orderDate;
+
+	@ApiModelProperty(value = "采购单号")
+	private String purchaseOrderNo;
+
+	@ApiModelProperty(value = "订单号")
+	private String orderNo;
 
 }

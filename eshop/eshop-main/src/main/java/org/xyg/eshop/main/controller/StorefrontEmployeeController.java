@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/storefrontEmployee")
-@Api(value = "门店员工",description = "门店员工")
+@Api(value = "门店员工",tags = "门店员工")
 public class StorefrontEmployeeController extends RabbitController {
 
 	private final IStorefrontEmployeeService employeeService;
@@ -54,6 +54,12 @@ public class StorefrontEmployeeController extends RabbitController {
 	@PostMapping("/update")
 	public R<StorefrontEmployeeVO> update(@RequestBody StorefrontEmployeeVO employeeVO) {
 		return R.data(employeeService.updateEmployee(employeeVO));
+	}
+
+	@ApiOperation(value = "删除", notes = "删除")
+	@DeleteMapping("/delete")
+	public R<String> delete(@RequestParam("ids") String ids) {
+		return R.status(employeeService.delete(ids));
 	}
 
 }

@@ -37,7 +37,7 @@ public class ProductCarModelVO extends ProductModelLines {
 	@ApiModelProperty(value = "车型")
 	private String model;
 
-	@ApiModelProperty(value = "车型")
+	@ApiModelProperty(value = "搜索条件")
 	private String easySearch;
 
 	@ApiModelProperty(value = "产品规格开始长")

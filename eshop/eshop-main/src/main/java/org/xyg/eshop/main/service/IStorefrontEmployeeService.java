@@ -39,4 +39,11 @@ public interface IStorefrontEmployeeService extends BaseService<StorefrontEmploy
 	 */
 	StorefrontEmployeeVO updateEmployee(StorefrontEmployeeVO employeeVO);
 
+	/**
+	 * 删除门店员工信息
+	 * @param ids id
+	 * @return
+	 */
+	Boolean delete(String ids);
+
 }

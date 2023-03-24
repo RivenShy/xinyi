@@ -23,13 +23,15 @@ import org.springrabbit.flow.core.entity.RabbitFlow;
 import org.springrabbit.flow.core.feign.IFlowOpenClient;
 import org.springrabbit.flow.core.utils.CommentTypeEnum;
 import org.springrabbit.system.entity.ApproverRoles;
-import org.springrabbit.system.feign.IDictClient;
 import org.springrabbit.system.feign.ISysClient;
 import org.xyg.ehop.common.component.generator.AutoIncrementIDGenerator;
 import org.xyg.ehop.common.constants.EshopConstants;
 import org.xyg.eshop.main.constants.EShopMainConstant;
 import org.xyg.eshop.main.entity.Storefront;
+import org.xyg.eshop.main.erpentity.ErpBusinessEntity;
 import org.xyg.eshop.main.mapper.StorefrontMapper;
+import org.xyg.eshop.main.service.ICommonService;
+import org.xyg.eshop.main.service.IErpBusinessEntityService;
 import org.xyg.eshop.main.service.IStorefrontService;
 import org.xyg.eshop.main.util.ProcessUtils.ProcessConstant;
 import org.xyg.eshop.main.vo.AdvancedSearchVO;
@@ -49,11 +51,13 @@ public class StorefrontServiceImpl extends BaseServiceImpl<StorefrontMapper, Sto
 
 	private final IFlowOpenClient flowOpenClient;
 	private final ISysClient sysClient;
-	private final IDictClient dictClient;
+	private final ICommonService commonService;
 
 	private static final String PREFIX = "MD";
 
 	private final AutoIncrementIDGenerator autoIncrementIDGenerator;
+
+	private final IErpBusinessEntityService erpBusinessEntityService;
 
 	/**
 	 * 保存或修改门店信息
@@ -65,11 +69,10 @@ public class StorefrontServiceImpl extends BaseServiceImpl<StorefrontMapper, Sto
 	@Override
 	public StorefrontVO saveOrUpdate(StorefrontVO storefrontVO) {
 
-		// 解决特殊字符 [&]
-		storefrontVO.setStorefrontName(decod(storefrontVO.getStorefrontName()));
-		decodString(storefrontVO);
+		// 处理特殊字符
+		specialCharacterProcessing(storefrontVO);
 
-		// 如果门店id是空为新增
+		// 如果门店id不为空  修改
 		if (storefrontVO.getId() != null) {
 			// 更新门店表数据
 			updateById(storefrontVO);
@@ -77,13 +80,10 @@ public class StorefrontServiceImpl extends BaseServiceImpl<StorefrontMapper, Sto
 		}
 
 		// 查询当前门店名称或社会信用代码在数据库中是否存在
-		LambdaQueryChainWrapper<Storefront> queryChainWrapper = lambdaQuery().ne(Storefront::getStatus,EshopConstants.STATUS_DISUSE).in(Storefront::getStatus, EshopConstants.STATUS_NORMAL,EshopConstants.STATUS_APPROVING);
-		queryChainWrapper.apply("lower(replace(storefront_name, ' ', '')) = lower(replace('"+storefrontVO.getStorefrontName()+"', ' ',''))");
-		Integer count = queryChainWrapper.count();
-		if (count > 0) {
-			// 门店名称在数据库中已存在不允许新增
-			throw new ServiceException("门店名称已存在，请前往门店新建");
-		}
+		storefrontRepeatOrNot(storefrontVO);
+
+		// 生成门店编码
+		createStorefrontCode(storefrontVO);
 
 		if (storefrontVO.getStatus() == null){
 			storefrontVO.setStatus(EshopConstants.STATUS_SAVE);
@@ -95,12 +95,17 @@ public class StorefrontServiceImpl extends BaseServiceImpl<StorefrontMapper, Sto
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public Long submit(StorefrontVO storefrontVO){
 
+		// 处理特殊字符
+		specialCharacterProcessing(storefrontVO);
+
+		// 查询当前门店名称在数据库中是否存在
+		storefrontRepeatOrNot(storefrontVO);
+
 		// 生成门店编码
-		if (StringUtil.isBlank(storefrontVO.getStorefrontCode())){
-			storefrontVO.setStorefrontCode(generateNo(EShopMainConstant.STOREFRONT_GENERATE_CODE,3));
-		}
+		createStorefrontCode(storefrontVO);
 
 		saveOrUpdate(storefrontVO);
 		return storefrontVO.getId();
@@ -179,11 +184,14 @@ public class StorefrontServiceImpl extends BaseServiceImpl<StorefrontMapper, Sto
 	 * @return
 	 */
 	@Override
-	public R<StorefrontVO> getDetail(Long id) {
+	public StorefrontVO getDetail(Long id,String processInstanceId) {
 		// 获取门店数据
-		Storefront storefront = getById(id);
+		Storefront storefront = this.lambdaQuery()
+			.eq(id != null,DBEntity::getId,id)
+			.eq(StringUtil.isNotBlank(processInstanceId),Storefront::getProcessInstanceId,processInstanceId)
+			.one();
 		if (storefront == null) {
-			return R.fail("门店已失效");
+			throw new ServiceException("未查询到门店数据");
 		}
 
 		StorefrontVO storefrontVO = BeanUtil.copyProperties(storefront,StorefrontVO.class);
@@ -191,7 +199,7 @@ public class StorefrontServiceImpl extends BaseServiceImpl<StorefrontMapper, Sto
 		// 补充数据
 		fillDetailData(storefrontVO);
 		// 返回门店详情信息
-		return R.data(storefrontVO);
+		return storefrontVO;
 	}
 
 	/**
@@ -286,21 +294,6 @@ public class StorefrontServiceImpl extends BaseServiceImpl<StorefrontMapper, Sto
 		return R.fail("未查询到数据");
 	}
 
-	private String getDateString(String remark) {
-		String format = DateUtil.format(LocalDateTime.now(), DateUtil.PATTERN_DATE);
-		if (StringUtil.isNotBlank(remark)) {
-			format = String.format("%s:%S", format, remark);
-		} else {
-			format = String.format("%s:%s", format, "导入");
-		}
-		return format;
-	}
-
-//	@Override
-//	public IPage<SynchronizeErpLogsVO> getSynchronizeErpLogs(String storefrontName, String accountNumber, String isOK, String startDate, String endDate, IPage<SynchronizeErpLogsVO> page) {
-//		return getSynchronizeErpLogs(storefrontName, accountNumber, isOK, startDate, endDate, page);
-//	}
-
 	/**
 	 * <p>
 	 * 处理门店名称中包含 & 的特殊字符;
@@ -316,9 +309,6 @@ public class StorefrontServiceImpl extends BaseServiceImpl<StorefrontMapper, Sto
 	}
 
 	private void decodString(Storefront storefront) {
-		if (StringUtil.isNotBlank(storefront.getBusinessScope())) {
-			storefront.setBusinessScope(StringUtil.uriDecode(storefront.getBusinessScope(), StandardCharsets.UTF_8));
-		}
 		if (StringUtil.isNotBlank(storefront.getIntroduction())) {
 			storefront.setIntroduction(StringUtil.uriDecode(storefront.getIntroduction(), StandardCharsets.UTF_8));
 		}
@@ -346,27 +336,6 @@ public class StorefrontServiceImpl extends BaseServiceImpl<StorefrontMapper, Sto
 	@Override
 	public LocalDateTime findMaxUpdateDate() {
 		return getBaseMapper().findMaxUpdateDate();
-	}
-
-	@Override
-	public IPage<Storefront> syncParty(IPage<Storefront> page, List<Long> partyId, String dateFrom, String dateTo) {
-		Date startDate = null;
-		Date endDate = null;
-
-		if (StringUtil.isNotBlank(dateFrom)) {
-			if (dateFrom.length() == 10) {
-				dateFrom += " 00:00:00";
-			}
-			startDate = DateUtil.parse(dateFrom, DateUtil.PATTERN_DATETIME);
-		}
-
-		if (StringUtil.isNotBlank(dateTo)) {
-			if (dateTo.length() == 10) {
-				dateTo += " 23:59:59";
-			}
-			endDate = DateUtil.parse(dateTo, DateUtil.PATTERN_DATETIME);
-		}
-		return getBaseMapper().syncParty(page, partyId, startDate, endDate);
 	}
 
 	@Override
@@ -571,32 +540,102 @@ public class StorefrontServiceImpl extends BaseServiceImpl<StorefrontMapper, Sto
 			return;
 		}
 
+		// 状态
 		String dictStatus = storefrontVO.getStatus() == null ? null : storefrontVO.getStatus().toString();
-		String dictStorefrontLevel = storefrontVO.getStorefrontLevel() == null ? null : storefrontVO.getStorefrontLevel().toString();
-
-		String statusName = getDictValue(EShopMainConstant.STOREFRONT_STATUS_DICT_CODE, dictStatus);
-		String storefrontLevelName = getDictValue(EShopMainConstant.STOREFRONT_LEVEL_DICT_CODE, dictStorefrontLevel);
-
+		String statusName = commonService.getDictValue(EShopMainConstant.STOREFRONT_STATUS_DICT_CODE, dictStatus);
 		storefrontVO.setStatusName(statusName);
-		storefrontVO.setStorefrontLevelName(storefrontLevelName);
-	}
 
-	/**
-	 * 获取字典值
-	 * @param dictCode 字典编码
-	 * @param dictKey 字典键
-	 * @return
-	 */
-	private String getDictValue(String dictCode,String dictKey){
-		if (StringUtil.isBlank(dictCode) || StringUtil.isBlank(dictKey)){
-			return null;
-		}
-		R<String> dictValueR = dictClient.getValue(dictCode, dictKey);
-		return EShopMainConstant.getData(dictValueR);
+		// 门店类型名称
+		String dictStorefrontType = storefrontVO.getType() == null ? null : storefrontVO.getType();
+		String typeName = commonService.getDictValue(EShopMainConstant.STOREFRONT_TYPE_DICT_CODE, dictStorefrontType);
+		storefrontVO.setTypeName(typeName);
+
+		// 门店等级
+		String dictStorefrontLevel = storefrontVO.getStorefrontLevel() == null ? null : storefrontVO.getStorefrontLevel().toString();
+		String storefrontLevelName = commonService.getDictValue(EShopMainConstant.STOREFRONT_LEVEL_DICT_CODE, dictStorefrontLevel);
+		storefrontVO.setStorefrontLevelName(storefrontLevelName);
+
+		// 业务实体
+		Long orgId = storefrontVO.getOrgId();
+		String orgName = getOrgName(orgId);
+		storefrontVO.setOrgName(orgName);
+
+		// 省市区名称
+		storefrontVO.setPcaName(getPcaName(storefrontVO));
 	}
 
 	public String generateNo(int type, int minLen) {
 		return PREFIX + autoIncrementIDGenerator.nextDayValue(type, minLen);
+	}
+
+	/**
+	 * 判断门店数据是否存在
+	 * @param storefrontVO 门店数据
+	 */
+	private void storefrontRepeatOrNot(StorefrontVO storefrontVO){
+		// 如果有id则不需要判断门店信息
+		if (storefrontVO.getId() != null){
+			return;
+		}
+
+		LambdaQueryChainWrapper<Storefront> queryChainWrapper = lambdaQuery().ne(Storefront::getStatus,EshopConstants.STATUS_DISUSE).in(Storefront::getStatus, EshopConstants.STATUS_NORMAL,EshopConstants.STATUS_APPROVING);
+		queryChainWrapper.apply("lower(replace(storefront_name, ' ', '')) = lower(replace('"+storefrontVO.getStorefrontName()+"', ' ',''))");
+		Integer count = queryChainWrapper.count();
+		if (count > 0) {
+			// 门店名称在数据库中已存在不允许新增
+			throw new ServiceException("门店名称已存在，请前往门店新建");
+		}
+	}
+
+	/**
+	 * 处理特殊字符
+	 * @param storefrontVO 门店数据
+	 */
+	private void specialCharacterProcessing(StorefrontVO storefrontVO){
+		// 解决特殊字符 [&]
+		storefrontVO.setStorefrontName(decod(storefrontVO.getStorefrontName()));
+		decodString(storefrontVO);
+	}
+
+	/**
+	 * 生成门店编码
+	 * @param storefrontVO 门店信息
+	 */
+	private void createStorefrontCode(StorefrontVO storefrontVO){
+		if (storefrontVO.getId() != null || StringUtil.isNotBlank(storefrontVO.getStorefrontCode())){
+			return;
+		}
+
+		storefrontVO.setStorefrontCode(generateNo(EShopMainConstant.STOREFRONT_GENERATE_CODE,3));
+	}
+
+	/**
+	 * 根据业务实体id查询业务实体信息
+	 * @param orgId 业务实体id
+	 * @return
+	 */
+	private String getOrgName(Long orgId){
+		if (orgId == null){
+			return null;
+		}
+		List<ErpBusinessEntity> list = erpBusinessEntityService.getList(null, orgId.toString(), null);
+		if (CollectionUtil.isEmpty(list)){
+			return null;
+		}
+		return list.get(0).getOrgName();
+	}
+
+	/**
+	 * 查询省市区名称
+	 * @param storefrontVO 门店数据
+	 * @return
+	 */
+	private String getPcaName(StorefrontVO storefrontVO){
+		String address1 = storefrontVO.getAddress1();
+		String address2 = storefrontVO.getAddress2();
+		String address3 = storefrontVO.getAddress3();
+
+		return commonService.getPcaName(address1,address2,address3);
 	}
 
 }

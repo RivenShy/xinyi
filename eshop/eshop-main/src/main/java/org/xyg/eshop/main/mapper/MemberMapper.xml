@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.MemberMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="memberResultMap" type="org.xyg.eshop.main.vo.MemberVO">
+
+    </resultMap>
+
+
+    <select id="selectMemberPage" resultMap="memberResultMap">
+        select emm.*
+        from ESHOP_MEMBER_MEMBER emm
+        where emm.IS_DELETED = 0
+
+        <if test="member.memberCode != null and member.memberCode != ''">
+            AND emm.MEMBER_CODE like CONCAT(CONCAT('%' , #{member.memberCode}) , '%')
+        </if>
+        <if test="member.memberName != null and member.memberName != ''">
+            AND emm.MEMBER_NAME like CONCAT(CONCAT('%' , #{member.memberName}) , '%')
+        </if>
+        <if test="member.plateNumber != null and member.plateNumber != ''">
+            AND emm.PLATE_NUMBER like CONCAT(CONCAT('%' , #{member.plateNumber}) , '%')
+        </if>
+        <if test="member.memeberStatusList != null and member.memeberStatusList.size() > 0">
+            AND emm.STATUS in
+            <foreach collection="member.memeberStatusList" item="status" open="(" close=")" separator=",">
+                #{status}
+            </foreach>
+        </if>
+    </select>
+</mapper>

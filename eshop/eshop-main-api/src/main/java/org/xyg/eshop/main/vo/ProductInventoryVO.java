@@ -12,6 +12,9 @@ public class ProductInventoryVO extends ProductInventory {
 	@ApiModelProperty(value = "门店名称")
 	private String storefrontName;
 
+	@ApiModelProperty(value = "门店地址")
+	private String storefrontAddress;
+
 	@ApiModelProperty(value = "状态搜索条件")
 	private String statusCondition;
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.ErpAreaMapper">
+
+    <select id="findAddressByArea" resultType="org.xyg.eshop.main.vo.ErpLocationVO">
+        select a.area_code,a.area_name,c.city_code,c.city_name,p.province_code,p.province_name,n.country_code,n.country_name
+        from erp_areas a join erp_cities c on a.language = c.language and a.city_code = c.city_code join erp_provinces p
+        on c.language = p.language and c.province_code = p.province_code join erp_countries n on n.country_code = p.country_code
+        and n.language = p.language where a.language = #{language} and a.area_code in (${codes})
+    </select>
+    <select id="findListByNameAndProvince" resultType="org.xyg.eshop.main.erpentity.ErpArea">
+        select a.area_code,a.area_name,c.city_code,c.city_name language from erp_areas a join erp_cities c on a.language = c.language and a.city_code = c.city_code
+        where replace(a.area_name,' ','') like concat('%', concat(#{name}, '%')) and a.language = #{language} and c.province_code = #{code}
+    </select>
+</mapper>

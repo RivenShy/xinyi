@@ -43,6 +43,7 @@
         <result column="MODEL" property="model"/>
         <result column="MODEL_YEAR" property="modelYear"/>
         <result column="DESCRIBE" property="describe"/>
+        <result column="STATUS" property="status"/>
     </resultMap>
     <select id="getDetail" resultType="org.xyg.eshop.main.vo.ProductCarModelVO">
         select *
@@ -97,6 +98,7 @@
         modelLine.INVENTORY_QUANTITY,
         modelLine.SUPPLIER,
         modelLine.PRODUCT_IMAGE,
+        modelLine.STATUS,
         priceListLine.PRICE1 AS PRICE ,
         priceListLine.BASE_PRICE AS BASE_PRICE
         from ESHOP_PRODUCT_MODEL_LINES modelLine
@@ -208,7 +210,8 @@
         modelLine.PACKING_QUANTITY1,
         modelLine.PACKING_QUANTITY2,
         modelLine.WIDTH,
-        modelLine.LENGTH
+        modelLine.LENGTH,
+        modelLine.STATUS
         from ESHOP_PRODUCT_MODEL_LINES modelLine
         LEFT JOIN ESHOP_PRODUCT_CAR_MODEL model
         ON model.ID = modelLine.HEADER_ID
@@ -307,7 +310,8 @@
         modelLine.PACKING_QUANTITY1,
         modelLine.PACKING_QUANTITY2,
         modelLine.WIDTH,
-        modelLine.LENGTH
+        modelLine.LENGTH,
+        modelLine.STATUS
         from ESHOP_PRODUCT_MODEL_LINES modelLine
         LEFT JOIN ESHOP_PRODUCT_CAR_MODEL model
         ON model.ID = modelLine.HEADER_ID
@@ -351,7 +355,7 @@
         line.SPECIFICATIONS,line.ACREAGE,line.WORKMANSHIP,line.ATTACHMENT,line.TYPE,line.US_MODELS,line.EUROPEAN_MODELS,line.SOUTHC_AFRICA,line.AUSTRALIA,
         line.OEM_MODEL,line.XYG_TYPE,line.DESCRIPTION,line.DESCRIPTION_EN,line.ORGANIZATION_ID,line.TECHNOLOGY_ID,line.MATERIAL_CODE,line.DIAGONAL,line.QUANTITY,
         line.COLOUR,line.REMARK,line.WIDTH,line.LENGTH,line.PACKING_QUANTITY1,line.PACKING_QUANTITY2,line.UNITS,line.MATERIAL_ID,line.LOADING_POSITION_CODE,
-        line.ATTACHMENT_EXPLANATION,line.ORIGINAL_PRODUCT_MODEL,line.FEATURES,
+        line.ATTACHMENT_EXPLANATION,line.ORIGINAL_PRODUCT_MODEL,line.FEATURES,line.STATUS,
         car.CAR_FACTORY,car.MODEL,car.ATTACHMENT as productCarModelAttachment,car.MODEL_YEAR
         from ESHOP_PRODUCT_MODEL_LINES line
         left join ESHOP_PRODUCT_CAR_MODEL car ON line.HEADER_ID = car.ID

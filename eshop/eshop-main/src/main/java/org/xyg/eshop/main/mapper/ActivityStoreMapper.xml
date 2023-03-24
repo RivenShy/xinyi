@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.ActivityStoreMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="activityStoreResultMap" type="org.xyg.eshop.main.vo.ActivityStoreVO">
+
+    </resultMap>
+
+    <select id="selectActivityStoreByActivityId" resultMap="activityStoreResultMap">
+        select eas.*,
+        (select NAME from RABBIT_SYSTEM_USER where ID = eas.IMAGE_UPLOAD_USER_ID) as imageUploadUserName,
+        (select NAME from RABBIT_SYSTEM_USER where ID = eas.REVIEWER_ID) as reviewerName
+        from ESHOP_ACTIVITY_STORE eas
+        where eas.IS_DELETED = 0 and eas.ACTIVITY_ID = #{activityId}
+    </select>
+
+    <select id="selectActivityStorePage" resultMap="activityStoreResultMap">
+        select eas.*,
+        (select ACTIVITY_NAME from ESHOP_ACTIVITY_ACTIVITY where ID = eas.ACTIVITY_ID) as activityName,
+        (select NAME from RABBIT_SYSTEM_USER where ID = eas.IMAGE_UPLOAD_USER_ID) as imageUploadUserName,
+        (select NAME from RABBIT_SYSTEM_USER where ID = eas.REVIEWER_ID) as reviewerName,
+        (SELECT STOREFRONT_NAME from ESHOP_STOREFRONT where ID = eas.STORE_FRONT_ID) as storefrontName
+        from ESHOP_ACTIVITY_STORE eas
+        where IS_DELETED = 0
+    </select>
+</mapper>

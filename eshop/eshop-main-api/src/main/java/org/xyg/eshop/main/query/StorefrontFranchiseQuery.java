@@ -24,6 +24,8 @@ public class StorefrontFranchiseQuery implements Serializable {
 	private Date endApplyDate;
 	@ApiModelProperty(value = "门店性质")
 	private String type;
+	@ApiModelProperty(value = "加盟标识:加盟申请,退出申请")
+	private String franchiseFlag;
 	@ApiModelProperty(value = "数据状态")
 	private List<Integer> status;
 

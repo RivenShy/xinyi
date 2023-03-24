@@ -10,7 +10,10 @@
         inventory.REMARK,
         inventory.REASON,
         inventory.STATUS,
+        inventory.TOTAL_QUANTITY,
+        inventory.TOTAL_PRICE,
         inventory.CREATION_DATE,
+        inventory.CREATED_BY,
         storefront.STOREFRONT_NAME
         from ESHOP_INVENTORY_MANAGEMENT inventory
         left join ESHOP_STOREFRONT storefront on inventory.STOREFRONT_ID = storefront.id

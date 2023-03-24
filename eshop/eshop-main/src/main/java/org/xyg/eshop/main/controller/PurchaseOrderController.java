@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springrabbit.core.boot.ctrl.RabbitController;
 import org.springrabbit.core.mp.support.Condition;
 import org.springrabbit.core.mp.support.Query;
 import org.springrabbit.core.tool.api.R;
@@ -26,19 +27,21 @@ import org.xyg.eshop.main.entity.PurchaseOrderCommodity;
 import org.xyg.eshop.main.service.IPurchaseOrderCommodityService;
 import org.xyg.eshop.main.service.IPurchaseOrderService;
 import org.xyg.eshop.main.vo.ContractVO;
+import org.xyg.eshop.main.vo.PurchaseOrderCommodityVO;
 import org.xyg.eshop.main.vo.PurchaseOrderVO;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import static org.xyg.eshop.main.constants.EShopMainConstant.ESCRM_PURCHASE_ORDER_APPROVAL;
 
 @RestController
 @RequestMapping("/purchaseOrder")
-@Api(value = "采购订单",description = "采购订单")
+@Api(value = "采购订单",tags = "采购订单")
 @Slf4j
-public class PurchaseOrderController {
+public class PurchaseOrderController extends RabbitController {
 
 	@Autowired
 	private IPurchaseOrderService purchaseOrderService;
@@ -76,8 +79,14 @@ public class PurchaseOrderController {
 
 	@GetMapping("/getDetail")
 	@ApiOperation(value = "查询详情", notes = "传入 id")
-	public R<PurchaseOrderVO> getDetail(@RequestParam Long id) {
+	public R<PurchaseOrderVO> getDetail(@RequestParam("id") Long id) {
 		return purchaseOrderService.selectById(id);
+	}
+
+	@GetMapping("/getPurchaseOrderCommodityList")
+	@ApiOperation(value = "查询采购订单商品", notes = "传入采购订单id")
+	public R<List<PurchaseOrderCommodityVO>> getPurchaseOrderCommodityList(@RequestParam("id") Long id) {
+		return purchaseOrderService.selectPurchaseOrderCommodityList(id);
 	}
 
 	@PostMapping("/purchaseOrderSaveExecutionStartCallback")

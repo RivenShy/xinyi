@@ -68,10 +68,16 @@ public class StorefrontFranchise extends DBEntity implements Serializable {
 	private String address;
 
 	/**
-	 * 门店地址经纬度
+	 * 门店地址经度
 	 */
-	@ApiModelProperty(value = "门店地址经纬度")
-	private String longitudeAndLatitude;
+	@ApiModelProperty(value = "门店地址经度")
+	private String longitude;
+
+	/**
+	 * 门店地址纬度
+	 */
+	@ApiModelProperty(value = "门店地址纬度")
+	private String latitude;
 
 	/**
 	 * 当地易车门店距离(km)
@@ -261,6 +267,21 @@ public class StorefrontFranchise extends DBEntity implements Serializable {
 
 	@ApiModelProperty(value = "流程实例ID")
 	private String processInstanceId;
+
+	@ApiModelProperty(value = "省编码")
+	private String address1;
+
+	@ApiModelProperty(value = "市编码")
+	private String address2;
+
+	@ApiModelProperty(value = "区编码")
+	private String address3;
+
+	@ApiModelProperty(value = "拉入黑名单/注销的原因")
+	private String handleReason;
+
+	@ApiModelProperty(value = "加盟标识:1加盟申请,0退出加盟")
+	private String franchiseFlag;
 
 	private static final long serialVersionUID = 1L;
 

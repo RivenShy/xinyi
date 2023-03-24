@@ -1,11 +1,9 @@
 package org.xyg.eshop.main.enums;
 
 public enum PurchaseOrderStatusEnum {
-	TO_BE_SUBMITTED(0,"未提交"),
-	UNDER_APPROVAL(1,"审批中"),
-	NORMAL(2,"正常"),
-	REJECTED(8,"已驳回"),
-	VOIDED(11,"废弃");
+	UN_DELIVER(0,"未交货"),
+	PARTIAL_DELIVER(1,"部分交货"),
+	ALL_DELIVER(2,"全部交货");
 
 	private String name;
 

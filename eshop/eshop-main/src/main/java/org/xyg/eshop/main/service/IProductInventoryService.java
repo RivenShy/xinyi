@@ -24,4 +24,6 @@ public interface IProductInventoryService extends BaseService<ProductInventory> 
 	 */
 	IPage<ProductInventoryVO> getPage(IPage<ProductInventoryVO> page, ProductInventoryVO productInventoryVO);
 
+	IPage<ProductInventoryVO> getMergePage(IPage<ProductInventoryVO> page, ProductInventoryVO productInventoryVO);
+
 }

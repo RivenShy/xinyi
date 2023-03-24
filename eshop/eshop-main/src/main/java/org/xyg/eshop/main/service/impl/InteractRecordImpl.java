@@ -9,13 +9,13 @@ import org.springrabbit.core.tool.api.R;
 import org.springrabbit.core.tool.utils.BeanUtil;
 import org.springrabbit.core.tool.utils.CollectionUtil;
 import org.springrabbit.core.tool.utils.StringUtil;
-import org.springrabbit.system.feign.IDictClient;
-import org.springrabbit.system.feign.IEmployeeClient;
-import org.springrabbit.system.vo.EmployeeVO;
+import org.springrabbit.system.entity.Staff;
+import org.springrabbit.system.feign.ISysClient;
 import org.xyg.eshop.main.constants.EShopMainConstant;
 import org.xyg.eshop.main.entity.InteractRecord;
 import org.xyg.eshop.main.entity.Storefront;
 import org.xyg.eshop.main.mapper.InteractRecordMapper;
+import org.xyg.eshop.main.service.ICommonService;
 import org.xyg.eshop.main.service.IInteractRecordService;
 import org.xyg.eshop.main.service.IStorefrontService;
 import org.xyg.eshop.main.vo.InteractRecordVO;
@@ -31,8 +31,8 @@ import java.util.List;
 public class InteractRecordImpl extends BaseServiceImpl<InteractRecordMapper,InteractRecord> implements IInteractRecordService {
 
 	private final IStorefrontService storefrontService;
-	private final IEmployeeClient employeeClient;
-	private final IDictClient dictClient;
+	private final ISysClient sysClient;
+	private final ICommonService commonService;
 
 	@Override
 	public Boolean saveInteractRecord(InteractRecordVO interactRecordVO){
@@ -78,19 +78,8 @@ public class InteractRecordImpl extends BaseServiceImpl<InteractRecordMapper,Int
 		}
 
 		for (InteractRecordVO interactRecordVO : list) {
-			// 业务员名称
-			String salesmanMame = getSalesmanMame(interactRecordVO.getSalesman());
-			interactRecordVO.setSalesmanName(salesmanMame);
-
-			// 门店类型名称
-			String dictStorefrontType = interactRecordVO.getStorefrontType() == null ? null : interactRecordVO.getStorefrontType().toString();
-			String storefrontTypeName = getDictValue(EShopMainConstant.STOREFRONT_TYPE_DICT_CODE, dictStorefrontType);
-			interactRecordVO.setStorefrontTypeName(storefrontTypeName);
-
-			// 门店等级名称
-			String dictStorefrontLevel = interactRecordVO.getStorefrontLevel() == null ? null : interactRecordVO.getStorefrontLevel().toString();
-			String storefrontLevelName = getDictValue(EShopMainConstant.STOREFRONT_LEVEL_DICT_CODE, dictStorefrontLevel);
-			interactRecordVO.setStorefrontLevelName(storefrontLevelName);
+			// 补充详情数据
+			fillDetailData(interactRecordVO);
 		}
 
 	}
@@ -114,6 +103,16 @@ public class InteractRecordImpl extends BaseServiceImpl<InteractRecordMapper,Int
 		// 查询业务员名称
 		String salesmanMame = getSalesmanMame(interactRecordVO.getSalesman());
 		interactRecordVO.setSalesmanName(salesmanMame);
+
+		// 门店类型名称
+		String dictStorefrontType = interactRecordVO.getStorefrontType() == null ? null : interactRecordVO.getStorefrontType().toString();
+		String storefrontTypeName = commonService.getDictValue(EShopMainConstant.STOREFRONT_TYPE_DICT_CODE, dictStorefrontType);
+		interactRecordVO.setStorefrontTypeName(storefrontTypeName);
+
+		// 门店等级名称
+		String dictStorefrontLevel = interactRecordVO.getStorefrontLevel() == null ? null : interactRecordVO.getStorefrontLevel().toString();
+		String storefrontLevelName = commonService.getDictValue(EShopMainConstant.STOREFRONT_LEVEL_DICT_CODE, dictStorefrontLevel);
+		interactRecordVO.setStorefrontLevelName(storefrontLevelName);
 
 	}
 
@@ -163,32 +162,19 @@ public class InteractRecordImpl extends BaseServiceImpl<InteractRecordMapper,Int
 	}
 
 	/**
-	 * 根据员工id查询员工数据
-	 * @param id 员工id
+	 * 根据员工工号查询员工数据
+	 * @param empno 员工工号
 	 * @return
 	 */
-	private String getSalesmanMame(String id){
+	private String getSalesmanMame(String empno){
 		String salesmanMame = null;
-		R<List<EmployeeVO>> employeeVoListR = employeeClient.employeeDetail(null, id);
-		List<EmployeeVO> employeeVoList = EShopMainConstant.getData(employeeVoListR);
-		if (CollectionUtil.isEmpty(employeeVoList)){
+		R<Staff> staffR = sysClient.getStaffByEmployeeNo(empno);
+		Staff staff = EShopMainConstant.getData(staffR);
+		if (staff == null){
 			return salesmanMame;
 		}
 
-		return employeeVoList.get(0).getEmpName();
+		return staff.getFullName();
 	}
 
-	/**
-	 * 获取字典值
-	 * @param dictCode 字典编码
-	 * @param dictKey 字典键
-	 * @return
-	 */
-	private String getDictValue(String dictCode,String dictKey){
-		if (StringUtil.isBlank(dictCode) || StringUtil.isBlank(dictKey)){
-			return null;
-		}
-		R<String> dictValueR = dictClient.getValue(dictCode, dictKey);
-		return EShopMainConstant.getData(dictValueR);
-	}
 }

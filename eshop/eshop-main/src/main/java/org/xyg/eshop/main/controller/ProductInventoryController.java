@@ -5,6 +5,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springrabbit.core.boot.ctrl.RabbitController;
@@ -38,8 +39,14 @@ public class ProductInventoryController extends RabbitController {
 
 	@GetMapping("/save")
 	@ApiOperation(value = "保存", notes = "保存")
-	public R<String> save(ProductInventoryVO productInventoryVO) {
-		return R.status(productInventoryService.save(productInventoryVO));
+	public R<String> save(@RequestBody ProductInventoryVO productInventoryVO) {
+		return R.status(productInventoryService.saveOrUpdate(productInventoryVO));
+	}
+
+	@GetMapping("/getMergePage")
+	@ApiOperation(value = "获取库存合并分页列表", notes = "获取库存合并分页列表")
+	public R<IPage<ProductInventoryVO>> getMergePage(Query query , ProductInventoryVO productInventoryVO) {
+		return R.data(productInventoryService.getMergePage(Condition.getPage(query) ,productInventoryVO));
 	}
 
 }

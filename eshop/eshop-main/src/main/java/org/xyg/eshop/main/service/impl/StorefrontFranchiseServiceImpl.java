@@ -6,30 +6,35 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springrabbit.core.mp.base.BaseServiceImpl;
+import org.springrabbit.core.mp.base.DBEntity;
 import org.springrabbit.core.secure.RabbitUser;
 import org.springrabbit.core.secure.utils.AuthUtil;
-import org.springrabbit.core.tool.utils.BeanUtil;
-import org.springrabbit.core.tool.utils.DateUtil;
-import org.springrabbit.core.tool.utils.ObjectUtil;
-import org.springrabbit.core.tool.utils.StringUtil;
+import org.springrabbit.core.tool.utils.*;
 import org.springrabbit.flow.core.callback.CallBackMethodResDto;
 import org.springrabbit.flow.core.callback.CallbackMethodReqDto;
 import org.springrabbit.flow.core.entity.RabbitFlow;
 import org.springrabbit.flow.core.feign.IFlowOpenClient;
+import org.springrabbit.system.entity.ApproverRoles;
+import org.springrabbit.system.feign.ISysClient;
 import org.xyg.ehop.common.component.generator.AutoIncrementIDGenerator;
 import org.xyg.ehop.common.constants.EshopConstants;
 import org.xyg.eshop.main.constants.EShopMainConstant;
 import org.xyg.eshop.main.dto.StorefrontFranchiseDTO;
+import org.xyg.eshop.main.entity.Storefront;
 import org.xyg.eshop.main.entity.StorefrontFranchise;
 import org.xyg.eshop.main.mapper.StorefrontFranchiseMapper;
 import org.xyg.eshop.main.query.StorefrontFranchiseQuery;
+import org.xyg.eshop.main.service.ICommonService;
 import org.xyg.eshop.main.service.IStorefrontFranchiseService;
+import org.xyg.eshop.main.service.IStorefrontService;
 import org.xyg.eshop.main.util.ProcessHandle;
 import org.xyg.eshop.main.util.ProcessUtils;
 import org.xyg.eshop.main.vo.StorefrontFranchiseVO;
 import org.xyg.eshop.main.wrapper.StoreFranchiseDtoWrapper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,6 +54,12 @@ public class StorefrontFranchiseServiceImpl extends BaseServiceImpl<StorefrontFr
 	private final IFlowOpenClient flowOpenClient;
 
 	private final Map<Long, StorefrontFranchise> entityMap = new HashMap<>();
+
+	private final IStorefrontService storefrontService;
+
+	private final ICommonService commonService;
+
+	private final ISysClient sysClient;
 
 	@Override
 	public String getProcessDefinitionKey() {
@@ -114,7 +125,9 @@ public class StorefrontFranchiseServiceImpl extends BaseServiceImpl<StorefrontFr
 
 	@Override
 	public IPage<StorefrontFranchiseVO> selectPage(IPage<StorefrontFranchiseVO> page, StorefrontFranchiseQuery query) {
-		return getBaseMapper().findPage(page, query);
+		IPage<StorefrontFranchiseVO> resPage = getBaseMapper().findPage(page, query);
+		fillData(resPage.getRecords());
+		return resPage;
 	}
 
 	@Override
@@ -156,10 +169,17 @@ public class StorefrontFranchiseServiceImpl extends BaseServiceImpl<StorefrontFr
 	}
 
 	@Override
-	public StorefrontFranchiseVO detail(Long id) {
-		StorefrontFranchise franchise = this.getById(id);
+	public StorefrontFranchiseVO detail(Long id,String processInstanceId) {
+		StorefrontFranchise franchise = this.lambdaQuery()
+			.eq(id != null,DBEntity::getId,id)
+			.in(StringUtil.isNotBlank(processInstanceId),StorefrontFranchise::getProcessInstanceId,processInstanceId)
+			.one();
 		Assert.notNull(franchise, "未查询出数据" + id);
-		return BeanUtil.copyProperties(franchise, StorefrontFranchiseVO.class);
+		StorefrontFranchiseVO storefrontFranchiseVO = BeanUtil.copyProperties(franchise, StorefrontFranchiseVO.class);
+
+		// 填充数据
+		fillDetailData(storefrontFranchiseVO);
+		return storefrontFranchiseVO;
 	}
 
 	@Override
@@ -186,18 +206,55 @@ public class StorefrontFranchiseServiceImpl extends BaseServiceImpl<StorefrontFr
 		} else {
 			build.startProcess();
 			entityMap.put(id, franchise);
+			// 更新门店状态为加盟申请中
+			updateStorefrontStatus(franchise.getStorefrontCode());
 		}
 	}
 
 	@Override
 	public CallBackMethodResDto flowInstanceExecutionStartCallback(CallbackMethodReqDto inDto) {
 		CallBackMethodResDto outDto = new CallBackMethodResDto();
+
+		String businessId = inDto.getBusinessId();
+		String activityId = inDto.getCurrentActivityId();
+		String processDefinitionKey = inDto.getProcessDefinitionKey();
+		String documentation = inDto.getDocumentation();
+
+		StorefrontFranchise franchise = getById(businessId);
+		if (franchise == null){
+			return outDto;
+		}
+
+		if (EShopMainConstant.DRAFT_NODE.equals(activityId)){
+			Map<String,String> variablesMap = new HashMap<>();
+			variablesMap.put("franchiseFlag",franchise.getFranchiseFlag());
+			outDto.setStringVariables(variablesMap);
+		} else {
+			outDto.setCandidateUsers(getApproverUserId(franchise, processDefinitionKey,documentation));
+		}
 		return outDto;
 	}
 
 	@Override
 	public CallBackMethodResDto flowInstanceExecutionEndCallback(CallbackMethodReqDto inDto) {
 		CallBackMethodResDto outDto = new CallBackMethodResDto();
+
+		String businessId = inDto.getBusinessId();
+		String activityId = inDto.getCurrentActivityId();
+
+		StorefrontFranchise franchise = getById(businessId);
+
+		if (EShopMainConstant.END.equals(activityId)){
+			// 修改加盟店
+			this.lambdaUpdate()
+				.eq(DBEntity::getId,businessId)
+				.set(DBEntity::getStatus,EshopConstants.STATUS_NORMAL)
+				.update();
+
+			// 更新门店信息
+			updateStorefront(franchise);
+		}
+
 		return outDto;
 	}
 
@@ -225,6 +282,92 @@ public class StorefrontFranchiseServiceImpl extends BaseServiceImpl<StorefrontFr
 			entity.setStorefrontCode(generateNo(EShopMainConstant.STOREFRONT_GENERATE_CODE, 3));
 		}
 	}
+
+	/**
+	 * 根据门店编码更新门店状态
+	 * @param storefrontCode 门店编码
+	 */
+	private void updateStorefrontStatus(String storefrontCode){
+		if (StringUtil.isBlank(storefrontCode)){
+			return;
+		}
+		storefrontService.lambdaUpdate()
+			.eq(Storefront::getStorefrontCode,storefrontCode)
+			.set(DBEntity::getStatus,EShopMainConstant.STOREFRONT_JOINING_STATUS)
+			.update();
+	}
+
+	/**
+	 * 根据门店编码更新门店数据
+	 * @param franchise 加盟申请信息
+	 */
+	private void updateStorefront(StorefrontFranchise franchise){
+		String franchiseFlag = franchise.getFranchiseFlag();
+
+		Storefront storefront = BeanUtil.copyProperties(franchise, Storefront.class);
+		storefront.setId(null);
+
+		// 修改门店状态
+		int status = EShopMainConstant.STOREFRONT_WAIT_ACCEPT_STATUS;
+		// 退出申请判断
+		if (EShopMainConstant.FRANCHISE_FLAG_EXIT_APP.equals(franchiseFlag)){
+			status = EShopMainConstant.STOREFRONT_EXIT_APP_STATUS;
+		}
+		storefront.setStatus(status);
+
+		storefrontService.lambdaUpdate()
+			.eq(Storefront::getStorefrontCode,franchise.getStorefrontCode())
+			.update(storefront);
+	}
+
+	/**
+	 * 补充加盟申请列表数据
+	 * @param list 加盟申请数据
+	 */
+	private void fillData(List<StorefrontFranchiseVO> list){
+		if(CollectionUtil.isEmpty(list)){
+			return;
+		}
+
+		for (StorefrontFranchiseVO storefrontFranchiseVO : list) {
+			fillDetailData(storefrontFranchiseVO);
+		}
+	}
+
+	/**
+	 * 补充加盟申请详情数据
+	 * @param franchiseVO 加盟申请数据
+	 */
+	private void fillDetailData(StorefrontFranchiseVO franchiseVO){
+		String statusName = commonService.getDictValue(EShopMainConstant.FRANCHISE_STATUS_DICT_CODE, Func.toStr(franchiseVO.getStatus()));
+		franchiseVO.setStatusName(statusName);
+
+		String franchiseFlagName = commonService.getDictValue(EShopMainConstant.FRANCHISE_FLAG_DICT_CODE, franchiseVO.getFranchiseFlag());
+		franchiseVO.setFranchiseFlagName(franchiseFlagName);
+	}
+
+	/**
+	 * 查询审批人
+	 * @param franchise 加盟店数据
+	 * @param processDefinitionKey 流程定义id
+	 * @return
+	 */
+	private List<String> getApproverUserId(StorefrontFranchise franchise,String processDefinitionKey,String documentation){
+		List<String> resList = new ArrayList<>();
+		// 省
+		String address1 = franchise.getAddress1();
+		if (StringUtil.isBlank(address1)){
+			return resList;
+		}
+
+		ApproverRoles approverRoles = new ApproverRoles();
+		approverRoles.setRoleCode(documentation);
+		approverRoles.setAttribute1(processDefinitionKey);
+		approverRoles.setAttribute3(address1);
+
+		return EShopMainConstant.getData(sysClient.getUserIdList(approverRoles));
+	}
+
 }
 
 

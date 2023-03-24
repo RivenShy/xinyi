@@ -20,48 +20,21 @@ public class Storefront extends DBEntity implements Serializable {
 
 	// status客户状态 2正常,3 注销,4黑名单, 1 审批中
 
-	@ApiModelProperty(value = "ERP客户id,批准回写后生成的")
-	private Long erpPartyId;
-
 	@ApiModelProperty(value = "门店名称")
 	private String storefrontName;
 
-	@ApiModelProperty(value = "客户别名")
-	private String partyShortName;
-
 	@ApiModelProperty(value = "社会信用代码")
 	private String creditCode;
-
-	@ApiModelProperty(value = "法人")
-	private String artificialPerson;
-
-	@ApiModelProperty(value = "固话")
-	private String telephone;
-
-	@ApiModelProperty(value = "邮箱")
-	private String email;
-
-	@ApiModelProperty(value = "注册资本")
-	private Double registerCapital;
 
 	@ApiModelProperty(value = "门店性质")
 	@TableField(value = "\"TYPE\"")
 	private String type;
 
-	@ApiModelProperty(value = "所属行业")
-	private String industry;
-
 	@ApiModelProperty(value = "门店地址")
 	private String address;
 
-	@ApiModelProperty(value = "母公司")
-	private String parent;
-
 	@ApiModelProperty(value = "门店简介")
 	private String introduction;
-
-	@ApiModelProperty(value = "经营范围")
-	private String businessScope;
 
 	@ApiModelProperty(value = "门店负责人")
 	private String principal;
@@ -69,39 +42,14 @@ public class Storefront extends DBEntity implements Serializable {
 	@ApiModelProperty(value = "门店等级")
 	private Integer storefrontLevel;
 
-	@ApiModelProperty(value = "客户等级名称")
-	@TableField(exist = false)
-	private String partyLevelName;
-
-	@ApiModelProperty(value = "总信用额度")
-	private Double creditAmount;
-
 	@ApiModelProperty(value = "营业执照附件")
 	private String businessLicenseAttachment;
 
-	@ApiModelProperty(value = "异常开户与否 1/0")
-	private Integer unusual;
-
-	@ApiModelProperty(value = "异常开户说明")
-	private String unusualReason;
-
-	@ApiModelProperty(value = "拉入黑名单/注销的原因")
+	@ApiModelProperty(value = "拉入黑名单/注销的原因/停用原因")
 	private String handleReason;
-
-	@ApiModelProperty(value = "潜在客户id")
-	private Long potentialPartyId;
 
 	@ApiModelProperty(value = "备注")
 	private String remark;
-
-	@ApiModelProperty(value = "是否创建供应商")
-	private Integer supplierFlag;
-
-	@ApiModelProperty(value = "erp客户编码")
-	private String partyNumber;
-
-	@ApiModelProperty(value = "注册资本币种")
-	private String capitalCurrency;
 
 	@ApiModelProperty(value = "国家")
 	private String country;
@@ -114,33 +62,12 @@ public class Storefront extends DBEntity implements Serializable {
 
 	@ApiModelProperty(value = "同步报错日志")
 	private String attribute2;
-	@ApiModelProperty(value = "客户注册日期")
-	private Date registerDate;
 
-	@ApiModelProperty(value = "销售区域")
-	private String saleAreaCode;
-	@ApiModelProperty(value = "公司标识如【'qb','jb'】该字段为'jt'就是公共客户")
-	private String companyLogo;
 	@ApiModelProperty(value = "业务员")
 	private Long salesrepId;
 
-	@ApiModelProperty(value = "内外销")
-	private String salesType ;
-
-	@ApiModelProperty(value = "中信保额度")
-	private BigDecimal zxbTotal ;
-
-	@ApiModelProperty(value = "是否有中信保额度")
-	private Long isZxb ;
-
 	@ApiModelProperty(value = "申请人工号")
 	private String salesrepNo;
-
-	@ApiModelProperty(value = "品牌{xy 信义、bx 奔讯")
-	private String brand;
-
-	@ApiModelProperty(value = "企业类型")
-	private String enterpriseType;
 
 	@ApiModelProperty(value = "门店编码")
 	private String storefrontCode;
@@ -249,5 +176,14 @@ public class Storefront extends DBEntity implements Serializable {
 
 	@ApiModelProperty(value = "门店地址纬度")
 	private String latitude;
+
+	@ApiModelProperty(value = "省编码")
+	private String address1;
+
+	@ApiModelProperty(value = "市编码")
+	private String address2;
+
+	@ApiModelProperty(value = "区编码")
+	private String address3;
 
 }

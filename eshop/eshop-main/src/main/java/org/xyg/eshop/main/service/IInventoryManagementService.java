@@ -5,8 +5,6 @@ import org.springrabbit.core.mp.base.BaseService;
 import org.xyg.eshop.main.entity.InventoryManagement;
 import org.xyg.eshop.main.vo.InventoryManagementVO;
 
-import java.rmi.ServerException;
-
 public interface IInventoryManagementService extends BaseService<InventoryManagement> {
 
     /**
@@ -34,7 +32,7 @@ public interface IInventoryManagementService extends BaseService<InventoryManage
      * 发起流程
      * @param id 出入库管理id
      */
-    void startProcess(Long id) throws ServerException;
+//    void startProcess(Long id) throws ServerException;
 
     /**
      * 更新出入库管理数据
@@ -42,6 +40,13 @@ public interface IInventoryManagementService extends BaseService<InventoryManage
      * @return
      */
     Boolean updateInventoryManagement(InventoryManagementVO inventoryManagementVO);
+
+	/**
+	 * 详情
+	 * @param id id
+	 * @return
+	 */
+	InventoryManagementVO detail(Long id);
 
     /**
      * 删除出入库管理数据
@@ -56,5 +61,19 @@ public interface IInventoryManagementService extends BaseService<InventoryManage
      * @return
      */
     Boolean linesDelete(String ids);
+
+	/**
+	 * 流程实例任务开始回调接口
+	 * @param inDto 流程数据
+	 * @return
+	 */
+//	CallBackMethodResDto flowInstanceExecutionStartCallback(CallbackMethodReqDto inDto);
+
+	/**
+	 * 流程实例任务结束回调接口
+	 * @param inDto 流程数据
+	 * @return
+	 */
+//	CallBackMethodResDto flowInstanceExecutionEndCallback(CallbackMethodReqDto inDto);
 
 }

@@ -19,4 +19,6 @@ public interface ContractMapper extends BaseMapper<Contract> {
 
 
 	ContractVO selectById(Long id);
+
+	List<ContractVO> selectChangeOrSupplementContract(ContractDTO contractDTO);
 }

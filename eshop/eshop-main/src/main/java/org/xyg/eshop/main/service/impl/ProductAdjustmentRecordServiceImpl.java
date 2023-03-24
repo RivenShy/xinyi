@@ -382,11 +382,7 @@ public class ProductAdjustmentRecordServiceImpl extends BaseServiceImpl<ProductA
 
 		if (productAdjustmentRecord != null){
 			productAdjustmentRecordVO = BeanUtil.copyProperties(productAdjustmentRecord, ProductAdjustmentRecordVO.class);
-
-			// 获取客户名称
-			String storefrontType = productAdjustmentRecord.getStorefrontType();
-//			productAdjustmentRecordVO.setPartyName(getPartyById(partyId));
-
+			
 			// 翻译内外销
 			Integer type = productAdjustmentRecordVO.getType();
 			productAdjustmentRecordVO.setTypeName(getTypeName(type));
@@ -500,10 +496,6 @@ public class ProductAdjustmentRecordServiceImpl extends BaseServiceImpl<ProductA
 				// 翻译内外销
 				Integer type = productAdjustmentRecordVO.getType();
 				productAdjustmentRecordVO.setTypeName(getTypeName(type));
-
-				// 翻译客户
-				String storefrontType = productAdjustmentRecordVO.getStorefrontType();
-//				productAdjustmentRecordVO.setPartyName(getPartyById(partyId));
 
 				// 状态翻译
 				Integer status = productAdjustmentRecordVO.getStatus();
@@ -740,11 +732,6 @@ public class ProductAdjustmentRecordServiceImpl extends BaseServiceImpl<ProductA
 			return R.fail("id为空");
 		}
 
-		// 折扣点为空设置默认值
-		if (productAdjustmentRecordLines.getRebatePoint() == null){
-			productAdjustmentRecordLines.setRebatePoint(getRebatePointDefault());
-		}
-
 		// 计算
 		if (productAdjustmentRecordLines.getBasePrice() != null){
 			calculation(productAdjustmentRecordLines);
@@ -767,11 +754,6 @@ public class ProductAdjustmentRecordServiceImpl extends BaseServiceImpl<ProductA
 
 		if (adjustmentRecordLines == null){
 			return null;
-		}
-
-		// 查询折扣点默认值
-		if (adjustmentRecordLines.getRebatePoint() == null){
-			adjustmentRecordLines.setRebatePoint(getRebatePointDefault());
 		}
 
 		// 计算
@@ -973,7 +955,7 @@ public class ProductAdjustmentRecordServiceImpl extends BaseServiceImpl<ProductA
 		BigDecimal oldPlatformEstimatedProfit = BigDecimal.ZERO;
 		BigDecimal oldPlatformReceiptPrice = BigDecimal.ZERO;
 		BigDecimal oldPlatformSuggestedPrice = BigDecimal.ZERO;
-		BigDecimal companyEstimatedProfit = BigDecimal.ZERO;
+		BigDecimal oldCompanyEstimatedProfit = BigDecimal.ZERO;
 
 		if (productPriceListLines != null){
 			oldPrice1 = productPriceListLines.getPrice1() == null ? oldPrice1 : productPriceListLines.getPrice1();
@@ -984,7 +966,7 @@ public class ProductAdjustmentRecordServiceImpl extends BaseServiceImpl<ProductA
 			oldPlatformEstimatedProfit = productPriceListLines.getPlatformEstimatedProfit() == null ? oldPlatformEstimatedProfit : productPriceListLines.getPlatformEstimatedProfit();
 			oldPlatformReceiptPrice = productPriceListLines.getPlatformReceiptPrice() == null ? oldPlatformReceiptPrice : productPriceListLines.getPlatformReceiptPrice();
 			oldPlatformSuggestedPrice = productPriceListLines.getPlatformSuggestedPrice() == null ? oldPlatformSuggestedPrice : productPriceListLines.getPlatformSuggestedPrice();
-			companyEstimatedProfit = productPriceListLines.getCompanyEstimatedProfit() == null ? companyEstimatedProfit : productPriceListLines.getCompanyEstimatedProfit();
+			oldCompanyEstimatedProfit = productPriceListLines.getCompanyEstimatedProfit() == null ? oldCompanyEstimatedProfit : productPriceListLines.getCompanyEstimatedProfit();
 		}
 
 		productAdjustmentRecordLines.setOldPrice1(oldPrice1);
@@ -995,22 +977,7 @@ public class ProductAdjustmentRecordServiceImpl extends BaseServiceImpl<ProductA
 		productAdjustmentRecordLines.setOldPlatformEstimatedProfit(oldPlatformEstimatedProfit);
 		productAdjustmentRecordLines.setOldPlatformReceiptPrice(oldPlatformReceiptPrice);
 		productAdjustmentRecordLines.setOldPlatformSuggestedPrice(oldPlatformSuggestedPrice);
-		productAdjustmentRecordLines.setOldCompanyEstimatedProfit(companyEstimatedProfit);
-	}
-
-	/**
-	 * 获取调整单默认折扣点
-	 * @return
-	 */
-	private BigDecimal getRebatePointDefault(){
-		BigDecimal rebatePoint = new BigDecimal("0.7");
-		R<List<Dict>> rDictionary = dictClient.getList("qbcrm_price_list_rebatePoint");
-		if (rDictionary.isSuccess() && rDictionary.getData() != null){
-			List<Dict> dictList = rDictionary.getData();
-			String dictValue = dictList.get(0).getDictValue();
-			rebatePoint = StringUtil.isNotBlank(dictValue) ? new BigDecimal(dictValue) : rebatePoint;
-		}
-		return rebatePoint;
+		productAdjustmentRecordLines.setOldCompanyEstimatedProfit(oldCompanyEstimatedProfit);
 	}
 
 	/**

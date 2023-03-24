@@ -44,12 +44,9 @@ public class ProductCarModelServiceImpl extends BaseServiceImpl<ProductCarModelM
 	private final IProductModelAdjunctService productModelAdjunctService;
 
 	private final IDictClient dictClient;
-//	private final ErpSyncClient erpSyncClient;
+
 	private final ITemplateRelationService relationService;
 
-	private final String FOR_SALE_ABROAD = "1040" ;
-
-	private final String DOMESTIC_SALES = "1041" ;
 	@Override
 	public R<IPage<ProductCarModel>> getPage(IPage<ProductCarModel> iPage) {
 		IPage<ProductCarModel> pageProduct = page(iPage);
@@ -157,40 +154,20 @@ public class ProductCarModelServiceImpl extends BaseServiceImpl<ProductCarModelM
 	@Override
 	public R<IPage<ProductCarModelVO>> getProductPage(IPage<ProductModelLines> iPage ,ProductCarModelVO param) throws ServiceException {
 
-		IPage<ProductCarModelVO> productPage = null ;
-		Dict dict = EShopMainConstant.getData(dictClient.getDictInfo("qbcrm_select_product_organizationIds", "N"));
-		/*if (dict != null) {
-			organizationIds = dict.getDictValue();
-		}*/
-		productPage = baseMapper.getProductPage(iPage, param);
+		IPage<ProductCarModelVO> productPage = baseMapper.getProductPage(iPage, param);
 
 		if (CollectionUtil.isEmpty(productPage.getRecords())){
 			return R.data(productPage);
 		}
 
 		for (ProductCarModelVO productCarModelVO:productPage.getRecords()) {
-			/*if(StringUtil.equals(custParties.getSalesType(),FOR_SALE_ABROAD) || StringUtil.equals(sales,"w")){
-				if(StringUtil.isNotBlank(productCarModelVO.getXygType())){
-					List<ProductCarModelVO> productList = baseMapper.getProductList(null, productCarModelVO.getXygType() , null , null);
-					List<String> attachmentList = new ArrayList<>();
-					List<String> colorList = new ArrayList<>();
-					for (ProductCarModelVO carModelVO : productList) {
-						if(StringUtil.isNotBlank(carModelVO.getAttachment())){
-							attachmentList.add(carModelVO.getAttachment());
-						}
-						if(StringUtil.isNotBlank(carModelVO.getColour())){
-							colorList.add(carModelVO.getColour());
-						}
-					}
-					productCarModelVO.setAttachmentList(attachmentList);
-					productCarModelVO.setColorList(colorList);
-				}
-			}*/
 			//查询本地库存信息
 			if(ObjectUtil.isNotEmpty(productCarModelVO)) {
 
 				//根据库存组织和产品型号获取库存数据
-				List<ProductInventoryVO> inventoryInformation = productInventoryService.getInventoryList(null);
+				ProductInventoryVO productInventoryVO = new ProductInventoryVO();
+				productInventoryVO.setProductMode(productCarModelVO.getFactoryMode());
+				List<ProductInventoryVO> inventoryInformation = productInventoryService.getInventoryList(productInventoryVO);
 				// 总库存
 				Long totalInventory = 0L;
 				if (CollectionUtil.isNotEmpty(inventoryInformation)) {
@@ -220,12 +197,6 @@ public class ProductCarModelServiceImpl extends BaseServiceImpl<ProductCarModelM
 						}
 					}
 				}*/
-
-				//查询技术图纸信息
-				if (productCarModelVO.getOrganizationId() != null && productCarModelVO.getTechnologyId() != null) {
-					List<ProductModelAdjunct> productModelAdjunctServiceList = productModelAdjunctService.getList(productCarModelVO.getTechnologyId(), productCarModelVO.getOrganizationId(), null);
-					productCarModelVO.setProductModelAdjuncts(productModelAdjunctServiceList);
-				}
 			}
 		}
 		return R.data(productPage);
@@ -259,11 +230,6 @@ public class ProductCarModelServiceImpl extends BaseServiceImpl<ProductCarModelM
 							}
 						}
 					}
-				}
-				//查询技术图纸信息
-				if(productCarModelVO.getOrganizationId() != null && productCarModelVO.getTechnologyId() != null){
-					List<ProductModelAdjunct> productModelAdjunctServiceList = productModelAdjunctService.getList(productCarModelVO.getTechnologyId(), productCarModelVO.getOrganizationId(),null);
-					productCarModelVO.setProductModelAdjuncts(productModelAdjunctServiceList);
 				}
 			}
 		}

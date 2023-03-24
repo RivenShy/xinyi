@@ -8,7 +8,10 @@ import org.springrabbit.flow.core.callback.CallBackMethodResDto;
 import org.springrabbit.flow.core.callback.CallbackMethodReqDto;
 import org.xyg.eshop.main.dto.PurchaseOrderDTO;
 import org.xyg.eshop.main.entity.PurchaseOrder;
+import org.xyg.eshop.main.vo.PurchaseOrderCommodityVO;
 import org.xyg.eshop.main.vo.PurchaseOrderVO;
+
+import java.util.List;
 
 public interface IPurchaseOrderService {
 
@@ -21,4 +24,6 @@ public interface IPurchaseOrderService {
 	CallBackMethodResDto flowInstanceExecutionStartCallback(CallbackMethodReqDto inDto);
 
 	CallBackMethodResDto flowInstanceExecutionEndCallback(CallbackMethodReqDto inDto);
+
+	R<List<PurchaseOrderCommodityVO>> selectPurchaseOrderCommodityList(Long id);
 }

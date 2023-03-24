@@ -14,6 +14,7 @@
         inventory.TRANSPORTATION_INVENTORY,
         inventory.STATUS,
         inventory.STOREFRONT_ID,
+        inventory.ALERT_STATUS,
         storefront.STOREFRONT_NAME
         from ESHOP_PRODUCT_INVENTORY inventory
         left join ESHOP_STOREFRONT storefront on inventory.STOREFRONT_ID = storefront.id
@@ -49,7 +50,9 @@
         inventory.TRANSPORTATION_INVENTORY,
         inventory.STATUS,
         inventory.STOREFRONT_ID,
-        storefront.STOREFRONT_NAME
+        inventory.ALERT_STATUS,
+        storefront.STOREFRONT_NAME,
+        storefront.ADDRESS as storefrontAddress
         from ESHOP_PRODUCT_INVENTORY inventory
         left join ESHOP_STOREFRONT storefront on inventory.STOREFRONT_ID = storefront.id
         <where>
@@ -70,6 +73,40 @@
             </if>
         </where>
         order by inventory.LAST_UPDATE_DATE
+    </select>
+
+    <select id="getMergePage" resultType="org.xyg.eshop.main.vo.ProductInventoryVO">
+        select
+        MIN(inventory.PRODUCT_NAME) as productName,
+        MIN(inventory.PRODUCT_IMAGE) as productImage,
+        inventory.PRODUCT_MODE,
+        SUM(inventory.TOTAL_INVENTORY) as totalInventory,
+        SUM(inventory.AVAILABLE_INVENTORY) as availableInventory,
+        SUM(inventory.OCCUPY_INVENTORY) as occupyInventory,
+        SUM(inventory.TRANSPORTATION_INVENTORY) as transportationInventory,
+        MIN(inventory.STATUS) as status,
+        MIN(inventory.ALERT_STATUS) as alertStatus
+        from ESHOP_PRODUCT_INVENTORY inventory
+        left join ESHOP_STOREFRONT storefront on inventory.STOREFRONT_ID = storefront.id
+        <where>
+            <if test="inventoryVO.productName != null and inventoryVO.productName != ''">
+                and inventory.PRODUCT_NAME like concat(concat('%',#{inventoryVO.productName}),'%')
+            </if>
+            <if test="inventoryVO.productMode != null and inventoryVO.productMode != ''">
+                and inventory.PRODUCT_MODE like concat(concat('%',#{inventoryVO.productMode}),'%')
+            </if>
+            <if test="inventoryVO.storefrontId != null">
+                and inventory.STOREFRONT_ID = #{inventoryVO.storefrontId}
+            </if>
+            <if test="inventoryVO.storefrontName != null and inventoryVO.storefrontName != ''">
+                and storefront.STOREFRONT_NAME like concat(concat('%',#{inventoryVO.storefrontName}),'%')
+            </if>
+            <if test="inventoryVO.statusCondition != null and inventoryVO.statusCondition != ''">
+                and  find_in_set(inventory.status,#{inventoryVO.statusCondition}) > 0
+            </if>
+        </where>
+        group by inventory.PRODUCT_MODE
+        order by MAX(inventory.LAST_UPDATE_DATE)
     </select>
 
 </mapper>

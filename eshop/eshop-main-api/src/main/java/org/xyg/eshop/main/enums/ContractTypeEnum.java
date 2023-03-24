@@ -6,7 +6,9 @@ public enum ContractTypeEnum {
 	RENT(4, "租赁合同"),
 	ENGINEERING(5, "工程合同"),
 	TECHNOLOGY(6, "技术合同"),
-	SERVICE(7, "服务合同");
+	SERVICE(7, "服务合同"),
+	CHANGE(8, "变更合同"),
+	SUPPLEMENT(9, "补充协议");
 
 	private String name;
 	private int index;

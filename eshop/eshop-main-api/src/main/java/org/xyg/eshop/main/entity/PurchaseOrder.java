@@ -35,6 +35,10 @@ public class PurchaseOrder extends BaseEntity implements Serializable {
 	@TableField(value = "STORE_NAME")
 	private String storeName;
 
+	@ApiModelProperty(value = "仓库/门店ID")
+	@TableField(value = "STORE_FRONT_ID")
+	private Long storefrontId;
+
 	@ApiModelProperty(value = "采购总金额")
 	@TableField(value = "PURCHASE_TOTAL_AMOUNT")
 	private BigDecimal purchaseTotalAmount;

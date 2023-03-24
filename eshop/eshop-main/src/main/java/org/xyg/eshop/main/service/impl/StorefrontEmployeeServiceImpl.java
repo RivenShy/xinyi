@@ -3,15 +3,15 @@ package org.xyg.eshop.main.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springrabbit.core.log.exception.ServiceException;
 import org.springrabbit.core.mp.base.BaseServiceImpl;
-import org.springrabbit.core.tool.api.R;
 import org.springrabbit.core.tool.utils.CollectionUtil;
+import org.springrabbit.core.tool.utils.Func;
 import org.springrabbit.core.tool.utils.StringUtil;
-import org.springrabbit.system.feign.IDictClient;
+import org.springrabbit.system.feign.ISysClient;
 import org.xyg.eshop.main.constants.EShopMainConstant;
 import org.xyg.eshop.main.entity.StorefrontEmployee;
 import org.xyg.eshop.main.mapper.StorefrontEmployeeMapper;
+import org.xyg.eshop.main.service.ICommonService;
 import org.xyg.eshop.main.service.IStorefrontEmployeeService;
 import org.xyg.eshop.main.vo.StorefrontEmployeeVO;
 
@@ -22,16 +22,18 @@ import java.util.List;
 @AllArgsConstructor
 public class StorefrontEmployeeServiceImpl extends BaseServiceImpl<StorefrontEmployeeMapper, StorefrontEmployee> implements IStorefrontEmployeeService {
 
-	private final IDictClient dictClient;
+	private final ICommonService commonService;
+
+	private final ISysClient sysClient;
 
 	@Override
 	public Long saveEmployee(StorefrontEmployeeVO employeeVO){
-		String empno = employeeVO.getEmpno();
+		/*String empno = employeeVO.getEmpno();
 
 		Integer empnoCount = lambdaQuery().eq(StorefrontEmployee::getEmpno, empno).count();
 		if (empnoCount >= 1){
 			throw new ServiceException("该工号已存在,新增失败");
-		}
+		}*/
 
 		save(employeeVO);
 		return employeeVO.getId();
@@ -64,6 +66,11 @@ public class StorefrontEmployeeServiceImpl extends BaseServiceImpl<StorefrontEmp
 		return employeeVO;
 	}
 
+	@Override
+	public Boolean delete(String ids){
+		return deleteLogic(Func.toLongList(ids));
+	}
+
 	/**
 	 * 补充数据
 	 * @param list 门店数据
@@ -88,23 +95,24 @@ public class StorefrontEmployeeServiceImpl extends BaseServiceImpl<StorefrontEmp
 		}
 
 		String dictStatus = employeeVO.getStatus() == null ? null : employeeVO.getStatus().toString();
-		String statusName = getDictValue(EShopMainConstant.STOREFRONT_EMPLOYEE_STATUS_DICT_CODE, dictStatus);
+		employeeVO.setStatusName(commonService.getDictValue(EShopMainConstant.STOREFRONT_EMPLOYEE_STATUS_DICT_CODE, dictStatus));
 
-		employeeVO.setStatusName(statusName);
+		Long deptId = employeeVO.getDeptId();
+		employeeVO.setDeptName(getDeptName(deptId));
 	}
 
 	/**
-	 * 获取字典值
-	 * @param dictCode 字典编码
-	 * @param dictKey 字典键
+	 * 根据部门id查询部门名称
+	 * @param deptId 部门id
 	 * @return
 	 */
-	private String getDictValue(String dictCode,String dictKey){
-		if (StringUtil.isBlank(dictCode) || StringUtil.isBlank(dictKey)){
-			return null;
+	private String getDeptName(Long deptId){
+		String deptName = null;
+		if (deptId == null) {
+			return deptName;
 		}
-		R<String> dictValueR = dictClient.getValue(dictCode, dictKey);
-		return EShopMainConstant.getData(dictValueR);
+		deptName = EShopMainConstant.getData(sysClient.getDeptName(deptId));
+		return deptName;
 	}
 
 }

@@ -16,4 +16,16 @@ public class StorefrontVO extends Storefront {
 	@ApiModelProperty(value = "门店等级名称")
 	private String storefrontLevelName;
 
+	@ApiModelProperty(value = "业务实体名称")
+	private String orgName;
+
+	@ApiModelProperty(value = "门店类型名称")
+	private String typeName;
+
+	@ApiModelProperty(value = "国家名称")
+	private String countryName;
+
+	@ApiModelProperty(value = "省/市/区名称")
+	private String pcaName;
+
 }

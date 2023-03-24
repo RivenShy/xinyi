@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/template")
-@Api(value = "产品库模板",description = "产品库模板")
+@Api(value = "产品库模板",tags = "产品库模板")
 public class TemplateController extends RabbitController {
 
 	private final ITemplateService templateService;

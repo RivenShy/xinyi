@@ -9,8 +9,7 @@
         flow.STOREFRONT_ID,
         flow.PRODUCT_NAME,
         flow.PRODUCT_MODE,
-        flow.INBOUND,
-        flow.OUTBOUND,
+        flow.INVENTORY_QUANTITY,
         flow.REMAINING_INVENTORY,
         flow.STOREFRONT_PRICE,
         flow.STATUS,
@@ -38,7 +37,7 @@
                 and flow.DOCNUM like concat(concat('%',#{flowVO.docnum}),'%')
             </if>
         </where>
-        order by flow.LAST_UPDATE_DATE
+        order by flow.LAST_UPDATE_DATE,flow.PRODUCT_MODE
     </select>
 
 </mapper>

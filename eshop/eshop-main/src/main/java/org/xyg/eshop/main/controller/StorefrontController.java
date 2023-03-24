@@ -14,6 +14,7 @@ import org.springrabbit.core.mp.support.Query;
 import org.springrabbit.core.secure.RabbitUser;
 import org.springrabbit.core.tenant.annotation.NonDS;
 import org.springrabbit.core.tool.api.R;
+import org.springrabbit.core.tool.utils.StringUtil;
 import org.springrabbit.flow.core.callback.CallBackMethodResDto;
 import org.springrabbit.flow.core.callback.CallbackMethodReqDto;
 import org.xyg.eshop.main.entity.Storefront;
@@ -70,8 +71,17 @@ public class StorefrontController extends RabbitController {
 	@GetMapping("/getDetail")
 	@ApiImplicitParam(name = "partyId", value = "门店id", paramType = "query", required = true)
 	@ApiOperation(value = "获取门店信息详情")
-	public R<StorefrontVO> getDetail(@RequestParam(value = "id") Long id) {
-		return storefrontService.getDetail(id);
+	public R<StorefrontVO> getDetail(@RequestParam(value = "id",required = false) Long id,
+									 @RequestParam(value = "processInstanceId",required = false) String processInstanceId) {
+		if (id == null && StringUtil.isBlank(processInstanceId)){
+			throw new IllegalArgumentException("查询条件为空");
+		}
+		try {
+			return R.data(storefrontService.getDetail(id,processInstanceId));
+		} catch (Exception e) {
+			log.error("查询门店详情出现错误 id -> {} {}",id,e);
+			return R.fail("获取门店信息失败");
+		}
 	}
 
 	@PostMapping("/updateStatus")

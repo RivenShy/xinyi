@@ -45,9 +45,10 @@ public interface IStorefrontService extends BaseService<Storefront> {
 	 * 获取门店详情
 	 *
 	 * @param id 门店id
+	 * @param processInstanceId 流程实例id
 	 * @return
 	 */
-	R<StorefrontVO> getDetail(Long id);
+	StorefrontVO getDetail(Long id,String processInstanceId);
 
 	/**
 	 * 修改门店状态为注销或者黑名单
@@ -100,10 +101,7 @@ public interface IStorefrontService extends BaseService<Storefront> {
 	 */
 	R<IPage<StorefrontVO>> getAllByPage(String companyLogo, String storefrontName, String status, Integer storefrontLevel, String salesrepName, String saleAreaName, String startDate , String endDate, String salesType ,String partyShortName , IPage<StorefrontVO> page);
 
-
 	LocalDateTime findMaxUpdateDate();
-
-	IPage<Storefront> syncParty(IPage<Storefront> page, List<Long> partyId, String dateFrom, String dateTo);
 
 	/**
 	 * 根据业务员id或业务员工号查询门店数据

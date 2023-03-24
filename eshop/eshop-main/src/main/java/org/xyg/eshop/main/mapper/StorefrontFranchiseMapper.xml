@@ -13,7 +13,8 @@
                franchise.storefront_code,
                franchise.storefront_level,
                franchise.address,
-               franchise.longitude_and_latitude,
+               franchise.longitude,
+               franchise.latitude,
                franchise.distance,
                franchise.salesrep_no,
                franchise.org_id,
@@ -48,7 +49,8 @@
                franchise.status,
                franchise.created_by,
                franchise.creation_date,
-               franchise.last_update_date
+               franchise.last_update_date,
+               franchise.franchise_flag
           from eshop_storefront_franchise franchise
                <where>
                     <if test="query.franchiseNo != null and query.franchiseNo != ''">
@@ -71,6 +73,9 @@
                         <foreach collection="query.status" item="v" open="in(" separator="," close=")">
                             #{v}
                         </foreach>
+                    </if>
+                    <if test="query.franchiseFlag != null and query.franchiseFlag != ''">
+                        and franchise.franchise_flag = #{query.franchiseFlag}
                     </if>
                </where>
          order by franchise.last_update_date desc

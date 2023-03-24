@@ -16,4 +16,6 @@ public interface ProductInventoryMapper extends BaseMapper<ProductInventory> {
 
 	IPage<ProductInventoryVO> getPage(IPage<ProductInventoryVO> page,@Param("inventoryVO") ProductInventoryVO productInventoryVO);
 
+    IPage<ProductInventoryVO> getMergePage(IPage<ProductInventoryVO> page,@Param("inventoryVO") ProductInventoryVO productInventoryVO);
+
 }

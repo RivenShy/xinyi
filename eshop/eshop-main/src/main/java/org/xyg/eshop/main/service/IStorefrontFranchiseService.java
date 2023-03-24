@@ -63,9 +63,10 @@ public interface IStorefrontFranchiseService extends BaseService<StorefrontFranc
 	 * 查看详情
 	 *
 	 * @param id 主键id
+	 * @param processInstanceId 流程实例id
 	 * @return StoreFranchiseVO
 	 */
-	StorefrontFranchiseVO detail(@NotNull(message = "主键id不能为空") Long id);
+	StorefrontFranchiseVO detail(Long id,String processInstanceId);
 
 	/**
 	 * 修改状态

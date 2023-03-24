@@ -23,14 +23,14 @@ public class InventoryManagementController extends RabbitController {
 	private final IInventoryManagementService inventoryManagementService;
 
 	@GetMapping("/getPage")
-	@ApiOperation(value = "查询出入库管理分页列表", notes = "查询出入库管理分页列表")
+	@ApiOperation(value = "分页列表", notes = "分页列表")
 	public R<IPage<InventoryManagementVO>> getPage(Query query , InventoryManagementVO inventoryManagementVO) {
 		return R.data(inventoryManagementService.getPage(Condition.getPage(query) ,inventoryManagementVO));
 	}
 
 	@PostMapping("/save")
 	@ApiOperation(value = "保存",notes = "保存")
-	public R<String> save(InventoryManagementVO inventoryManagementVO){
+	public R<String> save(@RequestBody InventoryManagementVO inventoryManagementVO){
 		try {
 			return R.status(inventoryManagementService.saveInventoryManagement(inventoryManagementVO));
 		} catch (Exception e) {
@@ -40,11 +40,11 @@ public class InventoryManagementController extends RabbitController {
 	}
 
 	@PostMapping("/submit")
-	@ApiOperation(value = "保存",notes = "保存")
-	public R<String> submit(InventoryManagementVO inventoryManagementVO){
+	@ApiOperation(value = "提交",notes = "提交")
+	public R<String> submit(@RequestBody InventoryManagementVO inventoryManagementVO){
 		try {
 			Long id = inventoryManagementService.submit(inventoryManagementVO);
-			inventoryManagementService.startProcess(id);
+//			inventoryManagementService.startProcess(id);
 			return R.status(true);
 		} catch (Exception e) {
 			log.error("提交出入库管理数据出现错误 -> {} {}",inventoryManagementVO ,e);
@@ -54,13 +54,19 @@ public class InventoryManagementController extends RabbitController {
 
 	@PostMapping("/update")
 	@ApiOperation(value = "修改",notes = "修改")
-	public R<String> updateInventoryManagement(InventoryManagementVO inventoryManagementVO){
+	public R<String> updateInventoryManagement(@RequestBody InventoryManagementVO inventoryManagementVO){
 		try {
 			return R.status(inventoryManagementService.updateInventoryManagement(inventoryManagementVO));
 		} catch (Exception e) {
 			log.error("修改出入库管理数据出现错误 -> {} {}",inventoryManagementVO ,e);
 			return R.fail("修改失败");
 		}
+	}
+
+	@GetMapping("/detail")
+	@ApiOperation(value = "详情",notes = "详情")
+	public R<InventoryManagementVO> detail(@RequestParam("id")Long id){
+		return R.data(inventoryManagementService.detail(id));
 	}
 
 	@GetMapping("/delete")
@@ -78,12 +84,33 @@ public class InventoryManagementController extends RabbitController {
 	@ApiOperation(value = "行表删除",notes = "行表删除")
 	public R<String> linesDelete(@RequestParam("ids") String ids){
 		try {
-			inventoryManagementService.linesDelete(ids);
-			return R.status(true);
+			return R.status(inventoryManagementService.linesDelete(ids));
 		} catch (Exception e) {
 			log.error("删除出入库管理行表数据出现错误 -> {} {}", ids ,e);
 			return R.fail("删除失败");
 		}
 	}
+
+	/*@PostMapping("/flowInstanceExecutionStartCallback")
+	@ApiOperation(value = "流程实例任务开始回调接口")
+	public R<CallBackMethodResDto> flowInstanceExecutionStartCallback(@RequestBody CallbackMethodReqDto inDto) {
+		try {
+			return R.data(inventoryManagementService.flowInstanceExecutionStartCallback(inDto));
+		} catch (Exception e) {
+			log.error("出入库管理流程实例任务开始回调接口出现错误 ",e);
+			return R.fail(e.getMessage());
+		}
+	}
+
+	@PostMapping("/flowInstanceExecutionEndCallback")
+	@ApiOperation(value = "流程实例任务结束回调接口")
+	public R<CallBackMethodResDto> flowInstanceExecutionEndCallback(@RequestBody CallbackMethodReqDto inDto) {
+		try {
+			return R.data(inventoryManagementService.flowInstanceExecutionEndCallback(inDto));
+		} catch (Exception e) {
+			log.error("出入库管理流程实例任务结束回调接口出现错误 ",e);
+			return R.fail(e.getMessage());
+		}
+	}*/
 
 }

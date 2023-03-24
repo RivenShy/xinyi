@@ -4,109 +4,7 @@
 
     <select id="findMaxUpdateDate" resultType="java.time.LocalDateTime">
         select max(last_update_date)
-        from cust_parties
-    </select>
-
-    <resultMap id="dbchainCustomer" type="org.xyg.eshop.main.entity.Storefront">
-        <id column="p_id" property="id"/>
-        <result column="erp_party_id" property="erpPartyId"/>
-        <result column="storefront_name" property="storefrontName"/>
-        <result column="party_short_name" property="partyShortName"/>
-        <result column="credit_code" property="creditCode"/>
-        <result column="artificial_person" property="artificialPerson"/>
-        <result column="telephone" property="telephone"/>
-        <result column="email" property="email"/>
-        <result column="register_capital" property="registerCapital"/>
-        <result column="type" property="type"/>
-        <result column="industry" property="industry"/>
-        <result column="address" property="address"/>
-        <result column="parent" property="parent"/>
-        <result column="introduction" property="introduction"/>
-        <result column="business_scope" property="businessScope"/>
-        <result column="principal" property="principal"/>
-        <result column="storefront_level" property="storefrontLevel"/>
-        <result column="p_status" property="status"/>
-        <result column="credit_amount" property="creditAmount"/>
-        <result column="business_license_attachment" property="businessLicenseAttachment"/>
-        <result column="unusual" property="unusual"/>
-        <result column="unusual_reason" property="unusualReason"/>
-        <result column="handle_reason" property="handleReason"/>
-        <result column="potential_party_id" property="potentialPartyId"/>
-        <result column="remark" property="remark"/>
-        <result column="p_createBy" property="createdBy"/>
-        <result column="p_creationDate" property="creationDate"/>
-        <result column="p_createDept" property="createDept"/>
-        <result column="p_lastBy" property="lastUpdatedBy"/>
-        <result column="p_lastDate" property="lastUpdateDate"/>
-        <result column="p_lastLogin" property="lastUpdateLogin"/>
-        <result column="supplier_flag" property="supplierFlag"/>
-        <result column="party_number" property="partyNumber"/>
-        <result column="capital_currency" property="capitalCurrency"/>
-        <result column="process_instance_id" property="processInstanceId"/>
-        <result column="country" property="country"/>
-        <result column="register_date" property="registerDate"/>
-    </resultMap>
-
-    <select id="syncParty" resultMap="dbchainCustomer">
-        select
-        party.id as p_id,
-        party.erp_party_id,
-        party.party_name,
-        party.party_short_name,
-        party.credit_code,
-        party.artificial_person,
-        party.telephone,
-        party.email,
-        party.register_capital,
-        party.type,
-        party.industry,
-        party.address,
-        party.parent,
-        party.introduction,
-        party.business_scope,
-        party.principal,
-        party.party_level,
-        party.status p_status,
-        party.credit_amount,
-        party.business_license_attachment,
-        party.unusual,
-        party.unusual_reason,
-        party.handle_reason,
-        party.potential_party_id,
-        party.remark,
-        party.created_by p_createBy,
-        party.creation_date p_creationDate,
-        party.create_dept p_createDept,
-        party.last_updated_by p_lastBy,
-        party.last_update_date p_lastDate,
-        party.last_update_login p_lastLogin,
-        party.supplier_flag,
-        party.party_number,
-        party.capital_currency,
-        party.process_instance_id,
-        party.country,
-        party.register_date
-        from cust_parties party
-        where
-        party.erp_party_id is not null and (party.company_logo != 'qb' or party.company_logo is null) and party.status in(2, 3, 11)
-        <if test="start != null">
-            and party.last_update_date &gt;= #{start}
-        </if>
-        <if test="end != null">
-            and party.last_update_date &lt;= #{end}
-        </if>
-        <if test="partyId != null and partyId.size() > 0">
-            and party.id
-            <foreach collection="partyId" item="id" open="IN(" separator="," close=")">
-                #{id}
-            </foreach>
-        </if>
-    </select>
-
-    <select id="selectByPotentialPartyId" resultType="org.xyg.eshop.main.vo.StorefrontVO">
-    select id,party_name,credit_code
-    from CUST_POTENTIAL_PARTIES
-    where id = #{partyId}
+        from eshop_storefront
     </select>
 
     <select id="getPage" resultType="org.xyg.eshop.main.vo.StorefrontVO">
@@ -121,7 +19,9 @@
         storefront.CREATION_DATE,
         storefront.SALESREP_NO,
         storefront.CREATED_BY,
-        storefront.ENTERPRISE_TYPE
+        storefront.address1,
+        storefront.address2,
+        storefront.address3
         from ESHOP_STOREFRONT storefront
         <where>
             <if test="storefrontVO.storefrontName!=null and storefrontVO.storefrontName != ''">
@@ -142,67 +42,32 @@
 
     <select id="getAllByPage" resultType="org.xyg.eshop.main.vo.StorefrontVO">
         select
-        parties.ID,
-        parties.PARTY_NAME,
-        parties.REGISTER_CAPITAL ,
-        parties.TYPE,
-        parties.ADDRESS,
-        parties.EMAIL,
-        parties.TELEPHONE ,
-        parties.PARTY_LEVEL ,
-        parties.INTRODUCTION ,
-        parties.STATUS ,
-        parties.CREATION_DATE ,
-        parties.INDUSTRY ,
-        parties.company_logo,
-        parties.SALES_TYPE,
-        parties.PARTY_SHORT_NAME,
-        parties.salesrep_id,
-        parties.salesrep_no,
-        parties.created_by,
-        parties.sale_area_code,
-        parties.brand,
-        parties.enterprise_type,
-        agency.NAME AS salesprep_name,
-        regions.area_name AS sale_area_name,
-        ent.glass_industry
-        from CUST_PARTIES parties
-        LEFT JOIN QBCRM_AGENCY_USERS agency ON parties.SALESREP_ID = agency.ID
-        left join erp_business_entities ent on agency.fd_company = ent.org_id and ent.language = 'ZHS'
-        LEFT JOIN qbcrm_sale_areas regions ON parties.SALE_AREA_CODE = regions.area_code
+        storefront.ID,
+        storefront.STOREFRONT_NAME,
+        storefront.STOREFRONT_CODE,
+        storefront.TYPE,
+        storefront.ADDRESS,
+        storefront.STOREFRONT_LEVEL,
+        storefront.STATUS,
+        storefront.CREATION_DATE,
+        storefront.SALESREP_NO,
+        storefront.CREATED_BY
+        from ESHOP_STOREFRONT storefront
         <where>
-            <if test="companyLogo != null and companyLogo != ''">
-                and (find_in_set(#{companyLogo}, parties.company_logo) > 0 or parties.company_logo = 'jt')
+            <if test="storefrontVO.storefrontName!=null and storefrontVO.storefrontName != ''">
+                AND storefront.STOREFRONT_NAME like CONCAT(CONCAT('%',#{storefrontVO.storefrontName}),'%')
             </if>
-            <if test="partyName!=null and partyName != ''">
-                AND parties.PARTY_NAME like CONCAT(CONCAT('%',#{partyName}),'%')
+            <if test="storefrontVO.storefrontCode!=null and storefrontVO.storefrontCode != ''">
+                AND storefront.STOREFRONT_CODE like CONCAT(CONCAT('%',#{storefrontVO.storefrontCode}),'%')
             </if>
-            <if test="status != null and status != ''">
-                and parties.status in(${status})
+            <if test="storefrontVO.type!=null and storefrontVO.type != ''">
+                AND storefront.TYPE = #{storefrontVO.type}
             </if>
-            <if test="partyLevel!=null">
-                AND parties.PARTY_LEVEL = #{partyLevel}
-            </if>
-            <if test="salesrepName != null and salesrepName != ''">
-                AND agency.NAME LIKE CONCAT(CONCAT('%' , #{salesrepName}),'%')
-            </if>
-            <if test="saleAreaName!=null and saleAreaName != ''">
-                AND regions.DESCRIPTION LIKE CONCAT(CONCAT('%' , #{saleAreaName}),'%')
-            </if>
-            <if test="startDate !=null and startDate != ''">
-                AND parties.CREATION_DATE &gt;= TO_DATE(#{startDate} , 'yyyy-MM-dd HH24:mi:ss')
-            </if>
-            <if test="endDate !=null and endDate != ''">
-                AND parties.CREATION_DATE &lt;= TO_DATE(#{endDate} , 'yyyy-MM-dd HH24:mi:ss')
-            </if>
-            <if test="salesType != null and salesType != ''">
-                AND parties.SALES_TYPE = #{salesType}
-            </if>
-            <if test="partyShortName != null and partyShortName != ''">
-                AND parties.PARTY_SHORT_NAME LIKE CONCAT(CONCAT('%' , #{partyShortName}),'%')
+            <if test="storefrontVO.statusSearch!=null and storefrontVO.statusSearch != ''">
+                AND find_in_set(storefront.STATUS,#{storefrontVO.statusSearch}) > 0
             </if>
         </where>
-        order by  parties.last_update_date desc
+        order by storefront.last_update_date desc
     </select>
 
 </mapper>

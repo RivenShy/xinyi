@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.MemberFlowMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="memberFlowResultMap" type="org.xyg.eshop.main.vo.MemberFlowVO">
+
+    </resultMap>
+
+
+    <select id="selectMemberFlowListByMemberId" resultMap="memberFlowResultMap">
+        select emf.*,
+        (select STOREFRONT_NAME from ESHOP_STOREFRONT where ID = emf.STORE_FRONT_ID) as storefrontName
+        from ESHOP_MEMBER_FLOW emf
+        where emf.IS_DELETED = 0 and emf.MEMBER_ID = #{memberId}
+    </select>
+</mapper>

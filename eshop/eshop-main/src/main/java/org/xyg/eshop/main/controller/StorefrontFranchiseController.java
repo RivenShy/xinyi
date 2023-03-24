@@ -12,6 +12,7 @@ import org.springrabbit.core.boot.ctrl.RabbitController;
 import org.springrabbit.core.mp.support.Condition;
 import org.springrabbit.core.mp.support.Query;
 import org.springrabbit.core.tool.api.R;
+import org.springrabbit.core.tool.utils.StringUtil;
 import org.springrabbit.flow.core.callback.CallBackMethodResDto;
 import org.springrabbit.flow.core.callback.CallbackMethodReqDto;
 import org.xyg.eshop.main.dto.StorefrontFranchiseDTO;
@@ -38,7 +39,9 @@ public class StorefrontFranchiseController extends RabbitController {
 	@ApiOperationSupport(order = 2)
 	@ApiOperation(value = "新增数据, 支持流程发起")
 	public R<StorefrontFranchiseVO> addData(@RequestBody StorefrontFranchiseDTO entity) {
-		return R.data(franchiseService.addData(entity));
+		StorefrontFranchiseVO storefrontFranchiseVO = franchiseService.addData(entity);
+		franchiseService.addProcess(storefrontFranchiseVO.getId());
+		return R.data(storefrontFranchiseVO);
 	}
 
 	@PostMapping("/save")
@@ -59,8 +62,12 @@ public class StorefrontFranchiseController extends RabbitController {
 	@ApiImplicitParam(name = "id", value = "主键id", paramType = "query", dataType = "long")
 	@ApiOperationSupport(order = 4)
 	@ApiOperation(value = "查看详情接口")
-	public R<StorefrontFranchiseVO> detail(@RequestParam(value = "id") Long id) {
-		return R.data(franchiseService.detail(id));
+	public R<StorefrontFranchiseVO> detail(@RequestParam(value = "id",required = false) Long id,
+										   @RequestParam(value = "processInstanceId",required = false) String processInstanceId) {
+		if (id == null && StringUtil.isBlank(processInstanceId)){
+			throw new IllegalArgumentException("查询条件为空");
+		}
+		return R.data(franchiseService.detail(id,processInstanceId));
 	}
 
 	@DeleteMapping("/trueRemoveById")

@@ -39,4 +39,7 @@ public class ProductInventory extends DBEntity implements Serializable {
 	@ApiModelProperty(value = "门店id")
 	private Long storefrontId;
 
+	@ApiModelProperty(value = "预警状态")
+	private String alertStatus;
+
 }

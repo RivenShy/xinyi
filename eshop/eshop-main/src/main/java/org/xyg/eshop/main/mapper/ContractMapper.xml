@@ -57,9 +57,11 @@
         where c.IS_DELETED = 0
 
         <if test="contract.storeName != null and contract.storeName != ''">
-<!--            AND c.STORE_NAME like CONCAT(CONCAT('%' , #{contract.storeName}) , '%')-->
             AND c.STORE_FRONT_ID in
             (select ID from ESHOP_STOREFRONT where STOREFRONT_NAME like CONCAT(CONCAT('%' , #{contract.storeName}) , '%'))
+        </if>
+        <if test="contract.storefrontId != null and contract.storefrontId != ''">
+            AND c.STORE_FRONT_ID = #{contract.storefrontId}
         </if>
         <if test="contract.contractCode != null and contract.contractCode != ''">
             AND c.CONTRACT_CODE like CONCAT(CONCAT('%' , #{contract.contractCode}) , '%')
@@ -107,5 +109,12 @@
                 </otherwise>
             </choose>
         </if>
+    </select>
+
+
+    <select id="selectChangeOrSupplementContract" resultMap="contractResultMap">
+        select c.*
+        from ESHOP_CONTRACT_CONTRACT c
+        where c.IS_DELETED = 0 and c.ORIGIN_CONTRACT_ID = #{originContractId} and c.CONTRACT_TYPE = #{contractType}
     </select>
 </mapper>

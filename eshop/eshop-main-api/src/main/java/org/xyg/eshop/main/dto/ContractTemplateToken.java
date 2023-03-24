@@ -3,7 +3,7 @@ package org.xyg.eshop.main.dto;
 import lombok.Data;
 
 @Data
-public class DbchainToken {
+public class ContractTemplateToken {
 
 	private String token_type;
 	private String access_token;

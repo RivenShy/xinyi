@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.ActivityMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="activityResultMap" type="org.xyg.eshop.main.vo.ActivityVO">
+
+    </resultMap>
+
+
+    <select id="selectActivityPage" resultMap="activityResultMap">
+        select eaa.*,
+        (select count(*) from ESHOP_ACTIVITY_STORE where ACTIVITY_ID = eaa.ID) storeJoinNumber
+        from ESHOP_ACTIVITY_ACTIVITY eaa
+        where eaa.IS_DELETED = 0
+
+        <if test="activity.activityName != null and activity.activityName != ''">
+            AND eaa.ACTIVITY_NAME like CONCAT(CONCAT('%' , #{activity.activityName}) , '%')
+        </if>
+        <if test="activity.activityType != null and activity.activityType != ''">
+            AND eaa.ACTIVITY_TYPE = #{activity.activityType}
+        </if>
+        <if test="activity.activityStartDate != null">
+            AND eaa.ACTIVITY_START_DATE >= #{activity.activityStartDate}
+        </if>
+
+        <if test="activity.activityEndDate != null">
+            AND eaa.ACTIVITY_END_DATE <![CDATA[ <= ]]> #{activity.activityEndDate}
+        </if>
+        <if test="activity.activityStatusList != null and activity.activityStatusList.size() > 0">
+            AND eaa.STATUS in
+            <foreach collection="activity.activityStatusList" item="status" open="(" close=")" separator=",">
+                #{status}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectActivityStatisticsById" resultMap="activityResultMap">
+        select count(*) as joinTotalNumber, count(DISTINCT STORE_FRONT_ID) as storeJoinNumber
+        from ESHOP_ACTIVITY_STORE
+        where IS_DELETED = 0
+        and ACTIVITY_ID = #{id}
+    </select>
+</mapper>

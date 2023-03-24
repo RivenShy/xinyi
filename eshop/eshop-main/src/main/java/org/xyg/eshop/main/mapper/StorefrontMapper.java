@@ -8,17 +8,11 @@ import org.xyg.eshop.main.entity.Storefront;
 import org.xyg.eshop.main.vo.StorefrontVO;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 @Mapper
 public interface StorefrontMapper extends BaseMapper<Storefront> {
 
 	LocalDateTime findMaxUpdateDate();
-
-	StorefrontVO selectByPotentialPartyId(@Param("partyId") Long partyId);
-
-	IPage<Storefront> syncParty(IPage<Storefront> page, @Param("partyId") List<Long> partyId , @Param("start") Date start, @Param("end") Date end);
 
 	IPage<StorefrontVO> getPage(IPage<StorefrontVO> page,@Param("storefrontVO") StorefrontVO storefrontVO);
 

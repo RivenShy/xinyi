@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.ProductOrderMapper">
+
+    <select id="getPage" resultType="org.xyg.eshop.main.vo.ProductOrderVO">
+        select
+        o.ID,
+        o.ORDER_TYPE,
+        o.ORDER_DATE,
+        o.ORDER_NO,
+        o.ORDER_PRICE,
+        o.ADDRESS,
+        o.DISTANCE,
+        o.STOREFRONT_ID,
+        o.DISPATCHER,
+        o.STATUS,
+        o.CREATED_BY,
+        o.CREATION_DATE,
+        o.LAST_UPDATE_DATE,
+        storefront.STOREFRONT_NAME
+        from ESHOP_PRODUCT_ORDER o
+        left join ESHOP_STOREFRONT storefront on o.STOREFRONT_ID = storefront.id
+        <where>
+            <if test="orderVO.orderType != null and orderVO.orderType != ''">
+                and o.ORDER_TYPE = #{orderVO.orderType}
+            </if>
+            <if test="orderVO.orderNo != null and orderVO.orderNo != ''">
+                and o.ORDER_NO like concat(concat('%',#{orderVO.orderNo}),'%')
+            </if>
+            <if test="orderVO.storefrontId != null">
+                and o.STOREFRONT_ID = #{orderVO.storefrontId}
+            </if>
+            <if test="orderVO.storefrontName != null and orderVO.storefrontName != ''">
+                and storefront.STOREFRONT_NAME like concat(concat('%',#{orderVO.storefrontName}),'%')
+            </if>
+            <if test="orderVO.startDate != null and orderVO.startDate != ''">
+                and o.ORDER_DATE &gt;= TO_DATE(#{orderVO.startDate} , 'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="orderVO.endDate != null and orderVO.endDate != ''">
+                and o.ORDER_DATE &lt;= TO_DATE(#{orderVO.endDate} , 'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="orderVO.statusCondition != null and orderVO.statusCondition != ''">
+                and find_in_set(o.status,#{orderVO.statusCondition}) > 0
+            </if>
+        </where>
+        order by o.LAST_UPDATE_DATE
+    </select>
+
+    <select id="getExcelList" resultType="org.xyg.eshop.main.excel.order.ProductOrderExcel">
+        select
+        o.ID,
+        o.ORDER_TYPE,
+        o.ORDER_DATE,
+        o.ORDER_NO,
+        o.ORDER_PRICE,
+        o.REMARK,
+        o.CONSIGNEE,
+        o.CONTACT,
+        o.ADDRESS,
+        o.DISTANCE,
+        o.STOREFRONT_ID,
+        o.INSTALL_DATE,
+        o.INSTALLER,
+        o.DISPATCHER,
+        o.BILLING_TYPE,
+        o.HEAD_NAME,
+        o.TAXPAYER_NUM,
+        o.STATUS,
+        o.CREATED_BY,
+        o.CREATION_DATE,
+        o.CREATE_DEPT,
+        o.LAST_UPDATED_BY,
+        o.LAST_UPDATE_DATE,
+        o.LAST_UPDATE_LOGIN,
+        o.PROCESS_INSTANCE_ID,
+        storefront.STOREFRONT_NAME
+        from ESHOP_PRODUCT_ORDER o
+        left join ESHOP_STOREFRONT storefront on o.STOREFRONT_ID = storefront.id
+        <where>
+            <if test="orderVO.orderType != null and orderVO.orderType != ''">
+                and o.ORDER_TYPE = #{orderVO.orderType}
+            </if>
+            <if test="orderVO.orderNo != null and orderVO.orderNo != ''">
+                and o.ORDER_NO like concat(concat('%',#{orderVO.orderNo}),'%')
+            </if>
+            <if test="orderVO.storefrontId != null">
+                and o.STOREFRONT_ID = #{orderVO.storefrontId}
+            </if>
+            <if test="orderVO.storefrontName != null and orderVO.storefrontName != ''">
+                and storefront.STOREFRONT_NAME like concat(concat('%',#{orderVO.storefrontName}),'%')
+            </if>
+            <if test="orderVO.startDate != null and orderVO.startDate != ''">
+                and o.ORDER_DATE &gt;= TO_DATE(#{orderVO.startDate} , 'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="orderVO.endDate != null and orderVO.endDate != ''">
+                and o.ORDER_DATE &lt;= TO_DATE(#{orderVO.endDate} , 'yyyy-MM-dd HH24:mi:ss')
+            </if>
+            <if test="orderVO.statusCondition != null and orderVO.statusCondition != ''">
+                and find_in_set(o.status,#{orderVO.statusCondition}) > 0
+            </if>
+        </where>
+        order by o.LAST_UPDATE_DATE
+    </select>
+
+</mapper>

@@ -31,9 +31,6 @@ public class Contract extends BaseEntity implements Serializable {
 	@TableField(value = "CONTRACT_CODE")
 	private String contractCode;
 
-//	@ApiModelProperty(value = "门店名称")
-//	@TableField(value = "STORE_NAME")
-//	private String storeName;
 
 	@ApiModelProperty(value = "门店id")
 	@TableField(value = "STORE_FRONT_ID")
@@ -76,7 +73,7 @@ public class Contract extends BaseEntity implements Serializable {
 	@TableField(value = "SALESMAN_CODE")
 	private String salesmanCode;
 
-	@ApiModelProperty(value = "合同类型")
+	@ApiModelProperty(value = "合同分类")
 	@TableField(value = "CONTRACT_TYPE")
 	private Integer contractType;
 
@@ -116,4 +113,8 @@ public class Contract extends BaseEntity implements Serializable {
 	@ApiModelProperty(value = "当前审批阶段")
 	@TableField(value = "CURR_APPROVEPHASE")
 	private String currApprovePhase;
+
+	@ApiModelProperty(value = "原合同Id")
+	@TableField(value = "ORIGIN_CONTRACT_ID")
+	private Long originContractId;
 }

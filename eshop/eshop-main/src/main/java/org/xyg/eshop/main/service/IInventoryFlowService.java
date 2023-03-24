@@ -5,6 +5,8 @@ import org.springrabbit.core.mp.base.BaseService;
 import org.xyg.eshop.main.entity.InventoryFlow;
 import org.xyg.eshop.main.vo.InventoryFlowVO;
 
+import java.util.List;
+
 public interface IInventoryFlowService extends BaseService<InventoryFlow> {
 
 	/**
@@ -14,5 +16,7 @@ public interface IInventoryFlowService extends BaseService<InventoryFlow> {
 	 * @return
 	 */
 	IPage<InventoryFlowVO> getPage(IPage<InventoryFlowVO> page, InventoryFlowVO inventoryFlowVO);
+
+	Boolean saveInventoryFlowList(List<InventoryFlow> list);
 
 }

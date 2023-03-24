@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.xyg.eshop.main.mapper.InventoryAlertMapper">
+
+    <select id="getPage" resultType="org.xyg.eshop.main.vo.InventoryAlertVO">
+        SELECT
+        alert.ID,
+        alert.PRODUCT_NAME,
+        alert.PRODUCT_IMAGE,
+        alert.PRODUCT_MODE,
+        alert.TOTAL_INVENTORY,
+        alert.AVAILABLE_INVENTORY,
+        alert.OCCUPY_INVENTORY,
+        alert.TRANSPORTATION_INVENTORY,
+        alert.ALERT_TYPE,
+        alert.STOREFRONT_ID,
+        alert.LOWER_LIMIT_INVENTORY,
+        alert.INVENTORY_CEILING,
+        alert.STATUS
+        FROM
+        ESHOP_INVENTORY_ALERT alert
+        left join ESHOP_STOREFRONT storefront on alert.STOREFRONT_ID = storefront.id
+        <where>
+            <if test="alertVO.productName != null and alertVO.productName != ''">
+                and alert.PRODUCT_NAME like concat(concat('%',#{alertVO.productName}),'%')
+            </if>
+            <if test="alertVO.productMode != null and alertVO.productMode != ''">
+                and alert.PRODUCT_MODE like concat(concat('%',#{alertVO.productMode}),'%')
+            </if>
+            <if test="alertVO.storefrontName != null and alertVO.storefrontName != ''">
+                and storefront.STOREFRONT_NAME like concat(concat('%',#{alertVO.storefrontName}),'%')
+            </if>
+        </where>
+        order by alert.LAST_UPDATE_DATE
+    </select>
+
+</mapper>

@@ -8,3 +8,8 @@ spring:
     url: ${rabbit.datasource.dev.url}
     username: ${rabbit.datasource.dev.username}
     password: ${rabbit.datasource.dev.password}
+
+
+wxmp2:
+  appid: wx57a25de3c0434258
+  appsecret: 63ac94ffc0e63d1d68b36243d35030a8

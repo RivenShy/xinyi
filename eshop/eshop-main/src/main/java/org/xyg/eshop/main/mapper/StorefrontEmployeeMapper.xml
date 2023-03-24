@@ -3,11 +3,10 @@
 <mapper namespace="org.xyg.eshop.main.mapper.StorefrontEmployeeMapper">
     <select id="getPage" resultType="org.xyg.eshop.main.vo.StorefrontEmployeeVO">
         select
-        e.id,e.empno,e.emp_name,e.dept_id, e.join_date, e.out_date,e.mobiletel,e.email,e.fd_level,e.storefront_id,e.address,e.qualifications,e.certificate,
-        e.status,e.created_by,e.creation_date,e.create_dept,e.last_updated_by,e.last_update_date,e.last_update_login,
-        d.dept_name,storefront.storefront_name
+        e.id,e.empno,e.emp_name,e.dept_id, e.join_date, e.out_date,e.mobiletel,e.email,e.fd_level,e.storefront_id,e.address,e.qualifications,
+        e.certificate,e.status,e.created_by,e.creation_date,e.create_dept,e.last_updated_by,e.last_update_date,e.last_update_login,
+        storefront.storefront_name
         from eshop_storefront_employee e
-        left join rabbit_system_dept d on e.dept_id = d.id
         left join eshop_storefront storefront on storefront.ID = e.STOREFRONT_ID
         <where>
             <if test="emp.empName!=null and emp.empName!=''">
@@ -20,17 +19,16 @@
                 and storefront.storefront_name like concat('%',concat(#{emp.storefrontName},'%'))
             </if>
             <if test="emp.storefrontId!=null">
-                and storefront.storefront_id = #{emp.storefrontId}
+                and e.storefront_id = #{emp.storefrontId}
             </if>
         </where>
     </select>
     <select id="getDetail" resultType="org.xyg.eshop.main.vo.StorefrontEmployeeVO">
         select
-        e.id,e.empno,e.emp_name,e.dept_id, e.join_date, e.out_date,e.mobiletel,e.email,e.fd_level,e.storefront_id,e.address,e.qualifications,e.certificate,
-        e.status,e.created_by,e.creation_date,e.create_dept,e.last_updated_by,e.last_update_date,e.last_update_login,
-        d.dept_name,storefront.storefront_name
+        e.id,e.empno,e.emp_name,e.dept_id, e.join_date, e.out_date,e.mobiletel,e.email,e.fd_level,e.storefront_id,e.address,e.qualifications,
+        e.certificate,e.status,e.created_by,e.creation_date,e.create_dept,e.last_updated_by,e.last_update_date,e.last_update_login,
+        storefront.storefront_name
         from eshop_storefront_employee e
-        left join rabbit_system_dept d on e.dept_id = d.id
         left join eshop_storefront storefront on storefront.ID = e.STOREFRONT_ID
         <where>
             <choose>
